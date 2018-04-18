@@ -1,22 +1,38 @@
-const request = require('request');
+var app = require('express')();
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
+var PORT = process.env.PORT || 5000
+
+var playerSpeed = 2;
+var missileSpeed = 4;
+var enemySpeed = 1.5;
+
+var activeGames = [];
+var allPlayers = []; /////[Player, Socket];
+
 
 const playerConstructor = {
 	name: "",
-	id: -1,
+	id: "",
+	socketId: -1,
 	playing: false,
-	gameId: -1,
+	gameId: "",
 	game: undefined, ////game object here
-	lastUpdated = 0, ////update every time player sends a request
+	
+	lastUpdated = 0, ////update every time player sends something
 	kills: 0,
 	roundKills: 0,
 	deaths: 0,
+	health: 100,
 	size: 4,
 	x: -1,
 	y: -1,
-	rotation: [x: 0, y: 1]
+	rotation: [x: 0, y: 1],
+	moveVector: [false, false, false, false] ///up, down, left, right
 }
 
 const enemyConstructor = {
+	id: "",
 	size: 4,
 	health: 50,
 	x: -1,
@@ -26,6 +42,7 @@ const enemyConstructor = {
 }
 
 const missileConstructor = {
+	id: "",
 	sentBy: undefined, ///so you can track kills
 	size: 1,
 	x: -1,
@@ -34,6 +51,7 @@ const missileConstructor = {
 }
 
 const baseConstructor = {
+	id: "",
 	size: 10,
 	health: 100,
 	x: -1,
@@ -42,168 +60,162 @@ const baseConstructor = {
 
 const gameConstructor = {
 	id: "",
+	started: false,
+	host: undefined,
+	
 	players: [],
 	enemies: [],
 	bases: [],
 	bullets: [],
 	deadEnemies: [], ////to show explosions or whatever effect for the missile hitting the enemy
 	round: 1,
-	enemiesLeft: 0
+	enemiesLeft: 0,
+	message: "" ////i.e. 3, 2, 1 or Player has left the game
 }
 
-var activeGames = [];
 
 function getMagnitude(uno, dos)
 {
 	return Math.sqrt(Math.pow(uno.x - dos.x), 2) + Math.pow(uno.y - dos.y), 2));
 }
 
-function checkForBulletHits(game)
+function generateId(length)
 {
-	var enemies = game.enemies;
-	var bullets = game.bullets;
-	for (var i = 0; i < bullets.length; i++)
-	{
-		for (var a = 0; a < enemies.length; a++)
-		{
-			if (getMagnitude(bullets[i], enemies[a]) < (bullets[i].size / 2 + enemies[a].size / 2))
-			{
-				var player = bullets[i].sentBy;
-				player.roundKills = player.roundKills + 1;
-				player.kills = player.kills + 1;
-				
-				game.deadEnemies.push(enemies[a]);
-				enemies.splice(a, 1);
-				bullets.splice(i, 1);
-				i--;
-				break;
-			}
-		}
-	}
-}
-
-function checkForEnemyHitBase(game)
-{
-	var bases = game.bases;
-	var enemies = game.enemies;
-	for (var i = 0; i < bases.length; i++)
-	{
-		if (bases[i].health > 0)
-		{
-			for (var a = 0; a < enemies.length; a++)
-			{
-				if (getMagnitude(bases[i], enemies[a]) < (bases[i].size / 2 + enemies[a].size / 2))
-				{
-					enemies.splice(a, 1);
-					bases[i].health = bases[i].health - 40; //////-40% per hit, maybe base heals?
-					if (bases[i].health <= 0) { bases[i].health = 0; break; }
-				}
-			}
-		}
-	}
-	
-	var allDead = true;
-	for (var i = 0; i < bases.length; i++)
-	{
-		if (bases[i].health > 0) { allDead = false; break; }
-	}
-	if (allDead == true) ///all bases are destroyed, game over
-	{
-		
-	}
-}
-
-function checkForEnemyPlayerCollision(game)
-{
-	var players = game.players;
-	var enemies = game.enemies;
-	for (var i = 0; i < players.length; i++)
-	{
-		if (players[i].health > 0 && players[i].playing == true)
-		{
-			for (var a = 0; a < enemies.length; a++)
-			{
-				if (getMagnitude(players[i], enemies[a]) < (players[i].size / 2 + enemies[a].size / 2))
-				{
-					enemies.splice(a, 1);
-					players[i].health = players[i].health - 40; //////-40% per hit, maybe base heals?
-					if (players[i].health <= 0) { players[i].health = 0; break; }
-				}
-			}
-		}
-	}
-}
-
-function fireBullet(player)
-{
-	var bullets = player.game.bullets;
-	var bullet = Object.create(missileConstructor);
-	bullet.sentBy = player;
-	
-	var mag = Math.sqrt(Math.pow(player.rotation.x, 2) + Math.pow(player.rotation.y, 2));
-	var newX = player.rotation.x / mag; ///normalize so bullet faces correct way
-	var newY = player.rotation.y / mag;
-	bullet.rotation = [newX, newY];
-	
-	var posX = player.x + (newX * player.size / 2);
-	var posY = player.y + (newY * player.size / 2);
-	bullet.x = posX;
-	bullet.y = posY;
-
-	bullets.push(bullet);
-}
-
-function addPlayer(game, playerStuff)
-{
-	var players = game.players;
-	var enemies = game.enemies;
-	var player = Object.create(playerConstructor);
-	
-	player.name = playerStuff.name;
-	player.id = playerStuff.id;
-	player.playing = true;
-	player.gameId = game.id;
-	player.game = game;
-	player.kills = playerStuff.kills;
-	player.roundKills = 0;
-	player.deaths = 0;
-	player.rotation = [0, 1];
-	
-	while (true)
-	{
-		var xPos = Math.floor(Math.random() * (100 - player.size / 2)) + player.size / 2;
-		var yPos = Math.floor(Math.random() * (100 - player.size / 2)) + player.size / 2;
-		player.x = xPos;
-		player.y = yPos;
-		
-		var canSpawn = true;
-		for (var i = 0; i < enemies.length; i++)
-		{
-			if (getMagnitude(enemies[i], player) < (enemies[i].size + player.size))
-			{
-				canSpawn = false;
-			}
-		}
-		if (canSpawn == true) { break; }
-	}
-
-	players.add(player);
-}
-
-function initializeGame(gameStuff, playerStuff) ////game must be started by a person
-{
-	var game = Object.create(gameConstructor);
-	var possibleChars = "abcdefghijklmnopqurtuvwxyz";
-	for (var i = 0; i < 8; i++)
+	var possibleChars = "abcdefghijklmnopqurtuvwxyz0123456789";
+	var str = "";
+	for (var i = 0; i < length; i++)
 	{
 		var cha = possibleChars.charAt(Math.floor(Math.random() * possibleChars.length));
-		if (Math.random() < .5) { game.id = game.id + cha; }
-		else { game.id = game.id + cha.toUpperCase(); }
+		if (Math.random() < .5) { str = str + cha; }
+		else { str = str + cha.toUpperCase(); }
 	}
-	
-	addPlayer(game, playerStuff);
+	return str;
+}
 
-	activeGames.push(game);
+function createGame(host)
+{
+	var game = Object.create(gameConstructor);
+	game.id = generateId(9);
+	game.host = host;
+	host.game = game;
+	host.gameId = game.id;
+	
+	activeGames[game.id] = game;
+}
+
+function addPlayerToGame(gameId, playerId)
+{
+	if (activeGames[game.id] == undefined) { return "Game with id: " + gameId + " could not be found."; }
+	var game = activeGames[game.id];
+	if (game.started == true)
+	{
+		return "Game has already started."
+	}
+	var player = undefined;
+	for (var i in allPlayers)
+	{
+		if (allPlayers[i].id == playerId)
+		{
+			player = allPlayers[i];
+			break;
+		}
+	}
+	if (player != undefined)
+	{
+		player.game = game;
+		player.gameId = gameId;
+		game.players.push(player);
+	}
+	else { return "Player with id: " + playerId + " not found"; }
+	return "Success";
+}
+
+function removePlayerFromGame(gameId, playerId)
+{
+	if (activeGames[game.id] == undefined) { return "Game with id: " + gameId + " could not be found."; }
+	var game = activeGames[game.id];
+	var players = game.players;
+	for (var i = 0; i < players.length; i++)
+	{
+		if (players[i].id == playerId)
+		{
+			var player = players[i];
+			player.game = undefined;
+			player.gameId = "";
+			if (game.host != undefined && game.host.gameId == game.id && game.host.id == player.id)
+			{
+				if (players.length == 1)
+				{
+					//////////no players left in game/////////////
+				}
+				else
+				{
+					if (i == 0) { game.host = players[1]; }
+					else { game.host = players[0]; }
+				}
+			}
+			players.splice(i, 1);
+		}
+	}
+	return "Success";
 }
 
 
+app.get("/", function(req, res) 
+{
+	const path = require('path');
+	//res.sendFile(__dirname + '/../Client/index.html');
+	res.sendFile(path.join(__dirname, "..", "Client", "index.html"));
+});
+
+server.listen(PORT, function() 
+{
+	console.log('listening...');
+});
+
+io.on('connection', function(socket) 
+{
+	console.log('SOCKET CONNECTION');
+	//unique identifier for each player
+	socket.id = Math.random();
+	
+	var player = Object.create(playerConstructor);
+	allPlayers[socket.id] = [player, socket];
+
+	//if user exits make sure to errase everything associated w/ user
+	socket.on('disconnect', function() 
+	{
+		var game = player.game;
+		var players = game.players;
+		for (var i = 0; i < players.length; i++)
+		{
+			if (players[i].id == player.id)
+			{
+				players.splice(i, 1);
+			}
+		}
+		//////////disconnect player from game lists and everything else//////////
+		delete allPlayers[socket.id];
+	});
+
+	//on keypress
+	socket.on('keyPress', function(data) 
+	{
+		if (data.inputId === 'left') 
+		{
+			player.moveVector[2] = data.state;
+		} 
+		else if (data.inputId === 'right') 
+		{
+			player.moveVector[3] = data.state;
+		} 
+		else if (data.inputId === 'up') 
+		{
+			player.moveVector[0] = data.state;
+		} 
+		else if (data.inputId === 'down') 
+		{
+			player.moveVector[1] = data.state;
+		}
+	});
+});

@@ -1,0 +1,192 @@
+function checkForBulletHits(game)
+{
+	var enemies = game.enemies;
+	var bullets = game.bullets;
+	for (var i = 0; i < bullets.length; i++)
+	{
+		for (var a = 0; a < enemies.length; a++)
+		{
+			if (getMagnitude(bullets[i], enemies[a]) < (bullets[i].size / 2 + enemies[a].size / 2))
+			{
+				var player = bullets[i].sentBy;
+				player.roundKills = player.roundKills + 1;
+				player.kills = player.kills + 1;
+				
+				game.deadEnemies.push(enemies[a]);
+				enemies.splice(a, 1);
+				bullets.splice(i, 1);
+				i--;
+				break;
+			}
+		}
+	}
+}
+
+function checkForEnemyHitBase(game)
+{
+	var bases = game.bases;
+	var enemies = game.enemies;
+	for (var i = 0; i < bases.length; i++)
+	{
+		if (bases[i].health > 0)
+		{
+			for (var a = 0; a < enemies.length; a++)
+			{
+				if (getMagnitude(bases[i], enemies[a]) < (bases[i].size / 2 + enemies[a].size / 2))
+				{
+					enemies.splice(a, 1);
+					bases[i].health = bases[i].health - 40; //////-40% per hit, maybe base heals?
+					if (bases[i].health <= 0) { bases[i].health = 0; break; }
+				}
+			}
+		}
+	}
+	
+	var allDead = true;
+	for (var i = 0; i < bases.length; i++)
+	{
+		if (bases[i].health > 0) { allDead = false; break; }
+	}
+	if (allDead == true) ///all bases are destroyed, game over
+	{
+		
+	}
+}
+
+function checkForEnemyPlayerCollision(game)
+{
+	var players = game.players;
+	var enemies = game.enemies;
+	for (var i = 0; i < players.length; i++)
+	{
+		if (players[i].health > 0 && players[i].playing == true)
+		{
+			for (var a = 0; a < enemies.length; a++)
+			{
+				if (getMagnitude(players[i], enemies[a]) < (players[i].size / 2 + enemies[a].size / 2))
+				{
+					enemies.splice(a, 1);
+					players[i].health = players[i].health - 40; //////-40% per hit, maybe base heals?
+					if (players[i].health <= 0) { players[i].health = 0; break; }
+				}
+			}
+		}
+	}
+}
+
+function fireBullet(player)
+{
+	var bullets = player.game.bullets;
+	var bullet = Object.create(missileConstructor);
+	bullet.sentBy = player;
+	bullet.id = generateId(6);
+	
+	var mag = Math.sqrt(Math.pow(player.rotation.x, 2) + Math.pow(player.rotation.y, 2));
+	var newX = player.rotation.x / mag; ///normalize so bullet faces correct way
+	var newY = player.rotation.y / mag;
+	bullet.rotation = [newX, newY];
+	
+	var posX = player.x + (newX * player.size / 2);
+	var posY = player.y + (newY * player.size / 2);
+	bullet.x = posX;
+	bullet.y = posY;
+
+	bullets.push(bullet);
+}
+
+function addPlayer(game, playerStuff)
+{
+	var players = game.players;
+	var enemies = game.enemies;
+	var player = Object.create(playerConstructor);
+	
+	player.name = playerStuff.name;
+	player.id = generateId(8); //playerStuff.id;
+	player.playing = true;
+	player.gameId = game.id;
+	player.game = game;
+	player.kills = playerStuff.kills;
+	player.roundKills = 0;
+	player.deaths = 0;
+	player.rotation = [0, 1];
+	
+	/*while (true)
+	{
+		var xPos = Math.floor(Math.random() * (100 - player.size / 2)) + player.size / 2;
+		var yPos = Math.floor(Math.random() * (100 - player.size / 2)) + player.size / 2;
+		player.x = xPos;
+		player.y = yPos;
+		
+		var canSpawn = true;
+		for (var i = 0; i < enemies.length; i++)
+		{
+			if (getMagnitude(enemies[i], player) < (enemies[i].size + player.size))
+			{
+				canSpawn = false;
+			}
+		}
+		if (canSpawn == true) { break; }
+	}*/
+
+	players.add(player);
+}
+
+
+
+
+
+
+
+
+var mainLoop = setInterval(function() {
+	//this pack of info will contain all the users location
+	var pack = [];
+	
+	
+	/*for (var i in activeGames)
+	{
+		var game = activeGames[i];
+		if (game.started == true)
+		{
+			var players = game.players;
+			var enemies = game.enemies;
+			var bullets = game.bullets;
+			var bases = game.bases;
+			
+			for (var a = 0; a < players.length; a++)
+			{
+				pack.push({
+					objectType: "Player",
+					name: players[a].name,
+					id: players[a].id,
+					x: players[a].x;
+					y: players[a].y;
+					rotationX: players[a].rotation[0],
+					rotationY: players[a].rotation[1],
+					health: players[a].health,
+				});
+			}
+
+			for (var a = 0; a < enemies.length; a++)
+			{
+				pack.push({
+					objectType: "Enemy",
+					id: enemies[a].id,
+					x: enemies[a].x;
+					y: enemies[a].y;
+					rotationX: enemies[a].rotation[0],
+					rotationY: enemies[a].rotation[1],
+					health: enemies[a].health,
+				});
+			}
+		}
+	}
+	//loop through to update each users position to pack
+
+	//loop through again to give each user the pack of info
+	for (var i in allPlayers) {
+		var socket = allPlayers[i][1];
+		socket.emit('newPositions', pack);
+	}*/
+	
+}, 40);
