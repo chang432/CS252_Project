@@ -41,7 +41,7 @@ const baseConstructor = {
 }
 
 const gameConstructor = {
-	id: -1,
+	id: "",
 	players: [],
 	enemies: [],
 	bases: [],
@@ -51,7 +51,7 @@ const gameConstructor = {
 	enemiesLeft: 0
 }
 
-
+var activeGames = [];
 
 function getMagnitude(uno, dos)
 {
@@ -189,4 +189,21 @@ function addPlayer(game, playerStuff)
 
 	players.add(player);
 }
+
+function initializeGame(gameStuff, playerStuff) ////game must be started by a person
+{
+	var game = Object.create(gameConstructor);
+	var possibleChars = "abcdefghijklmnopqurtuvwxyz";
+	for (var i = 0; i < 8; i++)
+	{
+		var cha = possibleChars.charAt(Math.floor(Math.random() * possibleChars.length));
+		if (Math.random() < .5) { game.id = game.id + cha; }
+		else { game.id = game.id + cha.toUpperCase(); }
+	}
+	
+	addPlayer(game, playerStuff);
+
+	activeGames.push(game);
+}
+
 
