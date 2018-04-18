@@ -226,12 +226,15 @@ io.on('connection', function(socket)
 	socket.on('disconnect', function() 
 	{
 		var game = player.game;
-		var players = game.players;
-		for (var i = 0; i < players.length; i++)
+		if (game != undefined && player.gameId.length > 1)
 		{
-			if (players[i].id == player.id)
+			var players = game.players;
+			for (var i = 0; i < players.length; i++)
 			{
-				players.splice(i, 1);
+				if (players[i].id == player.id)
+				{
+					players.splice(i, 1);
+				}
 			}
 		}
 		//////////disconnect player from game lists and everything else//////////
