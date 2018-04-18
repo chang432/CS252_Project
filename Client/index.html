@@ -3,7 +3,7 @@
 	<title>Attack On Purdue Login</title>
 </head>
 <body>
-	
+	<!--
 	<div class="main_div">
 		<h3>ATTTACK ON PURDUE</h3>
 		<input type="email" placeholder="Email"/>
@@ -12,13 +12,13 @@
 	</div>
 
 	<button onclick="happy()">Login</button>
-	<!--<div class="loggedin_div">
+	<div class="loggedin_div">
 		<h3>WELCOME!</h3>
 		<p>You are officially logged in and ready to play!</p>
 	</div>-->
 	
 
-	<!--
+	
 	<canvas id="ctx" width="500" height="500" style="border:1px solid #000000;"></canvas>
 
 	<script src="/socket.io/socket.io.js"></script>
@@ -42,9 +42,43 @@
 				ctx.fillText(data[i].number,data[i].x,data[i].y);
 			}
 		})
+
+		//when key is pressed send signal to server
+		document.onkeydown = function(event) {
+			if (event.keyCode === 68) { 
+				//d
+				socket.emit('keyPress', {inputId:'right',state:true});
+			} else if (event.keyCode === 83) {
+				//s
+				socket.emit('keyPress', {inputId:'down',state:true});
+			} else if (event.keyCode === 65) {
+				//a
+				socket.emit('keyPress', {inputId:'left',state:true});
+			} else if (event.keyCode === 87) {
+				//w
+				socket.emit('keyPress', {inputId:'up',state:true});
+			}
+		}
+
+		//when key is released send signal to server
+		document.onkeyup = function(event) {
+			if (event.keyCode === 68) { 
+				//d
+				socket.emit('keyPress', {inputId:'right',state:false});
+			} else if (event.keyCode === 83) {
+				//s
+				socket.emit('keyPress', {inputId:'down',state:false});
+			} else if (event.keyCode === 65) {
+				//a
+				socket.emit('keyPress', {inputId:'left',state:false});
+			} else if (event.keyCode === 87) {
+				//w
+				socket.emit('keyPress', {inputId:'up',state:false});
+			}
+		}
 	</script>
 
 	<button onclick="happy()">Login</button>
-	-->
+
 </body>
 </html>
