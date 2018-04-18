@@ -1,6 +1,6 @@
 var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
 var PORT = process.env.PORT || 5000
 
 //default opens index.html
@@ -10,7 +10,7 @@ app.get("/", function(req, res) {
 	res.sendFile(path.join(__dirname, "..", "Client", "index.html"));
 });
 
-http.listen(PORT, function() {
+server.listen(PORT, function() {
 	console.log('listening...');
 });
 
