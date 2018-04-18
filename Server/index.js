@@ -61,8 +61,8 @@ io.on('connection', function(socket) {
 	//if user exits make sure to errase everything associated w/ user
 	socket.on('disconnect', function() {
 		delete SOCKET_LIST[socket.id];
-	});
-
+		delete PLAYER_LIST[socket.id];
+	}
 	//on keypress
 	socket.on('keyPress', function(data) {
 		if (data.inputId === 'left') {
