@@ -62,8 +62,8 @@ const gameConstructor = {
 	id: "",
 	started: false,
 	host: undefined,
-	
 	players: [],
+	
 	enemies: [],
 	bases: [],
 	bullets: [],
@@ -158,6 +158,46 @@ function removePlayerFromGame(gameId, playerId)
 		}
 	}
 	return "Success";
+}
+
+function getPlayersInGame(gameId)
+{
+	if (activeGames[game.id] == undefined) { return "Game with id: " + gameId + " could not be found."; }
+	var game = activeGames[game.id];
+	var players = game.players;
+	
+	var returnTable = [];
+	for (var i = 0; i < players.length; i++)
+	{
+		var player = players[i];
+		var hostString = "Player";
+		if (game.host != undefined && game.host.id == players[i].id) { hostString = "Host"; }
+		returnTable.push({
+			name: player.name,
+			id: player.id,
+			hosting: hostString
+		});
+	}
+
+	return returnTable;
+}
+
+function getWaitingGames()
+{
+	var returnTable = [];
+	for (var i in activeGames)
+	{
+		var game = activeGames[i];
+		if (game.started == false)
+		{
+			returnTable.push({
+				id: game.id,
+				host: game.host,
+				numPlayers: game.players.length
+			});
+		}
+	}
+	return returnTable;
 }
 
 
