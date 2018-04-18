@@ -10,8 +10,7 @@ var enemySpeed = 1.5;
 var activeGames = [];
 var allPlayers = []; /////[Player, Socket];
 
-
-const playerConstructor = {
+var playerConstructor = {
 	name: "",
 	id: "",
 	socketId: -1,
@@ -19,7 +18,7 @@ const playerConstructor = {
 	gameId: "",
 	game: undefined, ////game object here
 	
-	lastUpdated = 0, ////update every time player sends something
+	lastUpdated: 0, ////update every time player sends something
 	kills: 0,
 	roundKills: 0,
 	deaths: 0,
@@ -27,30 +26,30 @@ const playerConstructor = {
 	size: 4,
 	x: -1,
 	y: -1,
-	rotation: [x: 0, y: 1],
+	rotation: [0, 1],
 	moveVector: [false, false, false, false] ///up, down, left, right
 }
 
-const enemyConstructor = {
+var enemyConstructor = {
 	id: "",
 	size: 4,
 	health: 50,
 	x: -1,
 	y: -1,
-	rotation: [x: 0, y: 1]
+	rotation: [0, 1],
 	enemyType: "Normal"
 }
 
-const missileConstructor = {
+var missileConstructor = {
 	id: "",
 	sentBy: undefined, ///so you can track kills
 	size: 1,
 	x: -1,
 	y: -1,
-	rotation: [x: 0, y: 1]
+	rotation: [0, 1]
 }
 
-const baseConstructor = {
+var baseConstructor = {
 	id: "",
 	size: 10,
 	health: 100,
@@ -58,7 +57,7 @@ const baseConstructor = {
 	y: -1
 }
 
-const gameConstructor = {
+var gameConstructor = {
 	id: "",
 	started: false,
 	host: undefined,
@@ -105,8 +104,8 @@ function createGame(host)
 
 function addPlayerToGame(gameId, playerId)
 {
-	if (activeGames[game.id] == undefined) { return "Game with id: " + gameId + " could not be found."; }
-	var game = activeGames[game.id];
+	if (activeGames[gameId] == undefined) { return "Game with id: " + gameId + " could not be found."; }
+	var game = activeGames[gameId];
 	if (game.started == true)
 	{
 		return "Game has already started."
