@@ -75,7 +75,7 @@ var gameConstructor = {
 
 function getMagnitude(uno, dos)
 {
-	return Math.sqrt(Math.pow(uno.x - dos.x), 2) + Math.pow(uno.y - dos.y), 2));
+	return Math.sqrt(Math.pow(uno.x - dos.x, 2) + Math.pow(uno.y - dos.y, 2));
 }
 
 function generateId(length)
@@ -239,6 +239,49 @@ io.on('connection', function(socket)
 		//////////disconnect player from game lists and everything else//////////
 		delete allPlayers[socket.id];
 	});
+
+	socket.on('login', function(data) ////data.username, data.password
+	{
+		
+	});
+	
+	socket.on('logout', function(data) ////socketId
+	{
+		if (data.socketId != undefined && allPlayers[data.socketId] != undefined)
+		{
+			allPlayers[data.socketId][0] = Object.create(playerConstructor);
+			allPlayers[data.socketId][0].socketId = data.socketId;
+			socket.emit('onLogout', {state: "Success"});
+		}
+		else { socket.emit('onLogout', {state: "Failed"}); }
+	});
+
+	socket.on('createGame', function(data) ////socketId
+	{
+		if (data.socketId != undefined && allPlayers[data.socketId] != undefined)
+		{
+			
+		}
+		else { socket.emit('createGame', {state: "Failed- socket id is incorrect"});
+	});
+
+	socket.on('joinGame', function(data) ////socketId
+	{
+		
+	});
+
+	socket.on('getCreatedGames', function(data)
+	{
+		socket.emit('createdGames', getWaitingGames());
+	});
+
+	socket.on('getPlayersInGame', function(data)
+	{
+		var gameId = data.gameId;
+		socket.emit('playersInGame', getPlayersInGame(gameId));
+	});
+
+	
 
 	//on keypress
 	socket.on('keyPress', function(data) 
