@@ -262,7 +262,7 @@ io.on('connection', function(socket)
 		{
 			
 		}
-		else { socket.emit('createGame', {state: "Failed- socket id is incorrect"});
+		else { socket.emit('createGame', {state: "Failed- socket id is incorrect"}); }
 	});
 
 	socket.on('joinGame', function(data) ////socketId
