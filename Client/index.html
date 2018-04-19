@@ -11,7 +11,7 @@
 		#init_div {
 			width:25%;
 			height:width;
-			background: PowderBlue;
+			background: #EEEEEE;
 			transform: translateY(10%);
 			margin: 0 auto;
 			box-sizing: border-box;
@@ -48,6 +48,14 @@
 			border: 1px solid #ccc;
 			box-sizing: border-box;
 		}
+		
+		.inputP {
+			color: #000000;
+			font-weight: bold;
+			display: block;
+			width: 20%;
+			font-size: 115%;
+		}
 	</style>
 </head>
 <body>
@@ -56,14 +64,14 @@
 		<h1 style="padding: 0 0 35px;text-align: center;font: Arvo">ATTTACK ON PURDUE</h1>
 
 		<div style="padding: 0 0 30px">
-			<p style="display: inline;">Username:  </p>
+			<p class="inputP" style="display: inline;">Username:  </p>
 			<input type="text" type="username" placeholder="Enter Username">
 		</div>
 		<div style="padding: 0 0 35px">
-			<p style="display: inline;margin: 1.5px">Password:  </p>
+			<p class="inputP" style="display: inline;margin: 1.5px">Password:  </p>
 			<input type="password" placeholder="Enter Password">
 		</div>
-		<div style="text-align: center;">
+		<div class="buttonHolder" style="text-align: center;">
 			<button class="loginButton" onclick="login()" style="margin: 20px">Login</button>
 			<button class="signupButton" onclick="login()">Sign Up</button>
 		</div>
