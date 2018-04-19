@@ -1,36 +1,60 @@
 <html>
 <head>
 	<title>Attack On Purdue Login</title>
+	--<link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
-	<!--
-	<div class="main_div">
-		<h3>ATTTACK ON PURDUE</h3>
-		<input type="email" placeholder="Email"/>
-		<input type="password" placeholder="Password"
+	<div id="init_div">
+		<h1>ATTTACK ON PURDUE</h1>
+		<div>
+			<p style="display: inline">Username:  </p>
+			<input type="username">
+		</div>
+		<div>
+			<p style="display: inline">Password:  </p>
+			<input type="password">
+		</div>
 
+		<button onclick="login()">Login</button>
 	</div>
 
-	<button onclick="happy()">Login</button>
-	<div class="loggedin_div">
-		<h3>WELCOME!</h3>
+	<dir id="signup_div" style="display: none">
+		<h1>Create Account</h1>
+		<div>
+			<p>Username: </p>
+			<input type="createuser">
+		</div>
+		
+
+	</dir>
+
+	<div id="lobby_div" style="display: none">
+		<h1>WELCOME!</h1>
 		<p>You are officially logged in and ready to play!</p>
-	</div>-->
+		<button onclick="signOut()">sign out</button>
+	</div>
 	
 
 	
-	<canvas id="ctx" width="500" height="500" style="border:1px solid #000000;"></canvas>
+	<!--<canvas id="ctx" width="500" height="500" style="border:1px solid #000000;"></canvas>-->
 
 	<script src="/socket.io/socket.io.js"></script>
 	<script>
 		var socket = io();
 
-		/*var happy = function() {
-			socket.emit('happy', {
-				reason:'its my b-day'
-			});	
-		}*/	
+		//BEGGINING STUFF
+		function login() {
+			document.getElementById("lobby_div").style = "display: inline-block";
+			document.getElementById("init_div").style = "display: none";
+		}
 
+		function signOut() {
+			document.getElementById("init_div").style = "display: inline-block";
+			document.getElementById("lobby_div").style = "display: none";
+		}
+
+		//GAME STUFF
+		/*
 		var ctx = document.getElementById("ctx").
 		getContext("2d");
 		ctx.font = '30px Arial';
@@ -75,10 +99,8 @@
 				//w
 				socket.emit('keyPress', {inputId:'up',state:false});
 			}
-		}
+		}*/
 	</script>
-
-	<button onclick="happy()">Login</button>
 
 </body>
 </html>
