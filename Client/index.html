@@ -105,11 +105,21 @@
 		function login() {
 			var userN = document.getElementById("usernameInput").value;
 			var passW = document.getElementById("passwordInput").value;
-			document.getElementById("lobby_div").style.display = "block";
-			document.getElementById("init_div").style.display = "none";
 			console.log("Username: " + userN + ", Password: " + passW);
 			socket.emit('login', {username: userN, password: passW});
 		}
+		
+		socket.on('onLogin', function(data) {
+			if (data.state == "Success")
+			{
+				document.getElementById("lobby_div").style.display = "block";
+				document.getElementById("init_div").style.display = "none";
+			}
+			else
+			{
+				console.log("Failed to login");
+			}
+		});
 
 		function signOut() {
 			document.getElementById("init_div").style.display = "block";

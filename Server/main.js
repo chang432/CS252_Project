@@ -243,6 +243,8 @@ io.on('connection', function(socket)
 	socket.on('login', function(data) ////data.username, data.password
 	{
 		console.log("Username: " + data.username + "\nPassword: " + data.password);
+		////////do fancy stuff with the database/////////
+		socket.emit('onLogin', {state: "Success"});
 	});
 	
 	socket.on('logout', function(data) ////socketId
