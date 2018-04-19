@@ -1,7 +1,45 @@
-/* The linking doesnt work... */
+body{
+	background-color: DodgerBlue;
+	background-size: 10% auto;
+}
 
 #init_div {
-	width:800px;
-	height:600px;
-	background-color:red;
+	width:25%;
+	height:width;
+	background: PowderBlue;
+	transform: translateY(10%);
+	margin: 0 auto;
+	box-sizing: border-box;
+	padding: 20px 60px;
+}
+
+button {
+	color: white;
+	padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+	opacity: .9;
+}
+
+.loginButton {
+    background-color: #4CAF50;
+	width: 40%;
+}
+
+.signupButton {
+	background-color: #0095F0;
+    width: 40%;
+}
+
+input[type=text], input[type=password] {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
 }
