@@ -1,61 +1,8 @@
-<html>
-<head>
-	<title>Attack On Purdue Login</title>
-	<!--<link rel="stylesheet" type="text/css" href="styles.css">-->
-</head>
-<body style="background: rgba(131,189,247,.5);">
-	<div id="init_div" style="
-		width:350px;
-		height:420px;
-		background: rgba(14,42,66,.7);
-		transform: translateY(10%);
-		margin: 0 auto;
-		box-sizing: border-box;
-		padding: 20px 60px;
-	">
-		<h1 style="padding: 0 0 35px;text-align: center;font: Arvo">ATTTACK ON PURDUE</h1>
-
-		<div style="padding: 0 0 30px">
-			<p style="display: inline;">Username:  </p>
-			<input class="boxx" type="username">
-		</div>
-		<div style="padding: 0 0 35px">
-			<p style="display: inline;margin: 1.5px">Password:  </p>
-			<input type="password">
-		</div>
-		<div style="text-align: center;">
-			<button onclick="login()" style="margin: 20px">Login</button>
-			<button onclick="login()">Sign Up</button>
-		</div>
-	
-	</div>
-
-	<dir id="signup_div" style="display: none">
-		<h1>Create Account</h1>
-		<div>
-			<p>Username: </p>
-			<input type="createuser">
-		</div>
-		
-
-	</dir>
-
-	<div id="lobby_div" style="display: none">
-		<h1>WELCOME!</h1>
-		<p>You are officially logged in and ready to play!</p>
-		<button onclick="signOut()">sign out</button>
-	</div>
-	
-
-	
-	<!--<canvas id="ctx" width="500" height="500" style="border:1px solid #000000;"></canvas>-->
-
-	<script src="/socket.io/socket.io.js"></script>
-	<script>
-		var socket = io();
+var socket = io();
 
 		//BEGGINING STUFF
 		function login() {
+			console.log("Logging in...");
 			document.getElementById("lobby_div").style.display = "block";
 			document.getElementById("init_div").style.display = "none";
 		}
@@ -112,6 +59,3 @@
 				socket.emit('keyPress', {inputId:'up',state:false});
 			}
 		}*/
-	</script>
-</body>
-</html>
