@@ -1,3 +1,11 @@
+//database connection stuff
+var mongojs = require("mongojs");
+var db = mongojs('localhost:27017/attack-on-purdue',['accounts']);
+//basic commands you can run for mongo. 
+//db.accounts.insert({username:"fred",password:"321"});
+//db.accounts.find({username:”bob”});
+//db.accounts.update({username:”bob”},{$set:{password:”123”}});
+
 var app = require('express')();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
