@@ -242,7 +242,7 @@ io.on('connection', function(socket)
 
 	socket.on('login', function(data) ////data.username, data.password
 	{
-		
+		console.log("Username: " + data.username + "\nPassword: " + data.password);
 	});
 	
 	socket.on('logout', function(data) ////socketId

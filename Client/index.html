@@ -66,11 +66,11 @@
 
 		<div style="padding: 0 0 30px">
 			<p class="inputP" style="display: inline;">Username:  </p>
-			<input type="text" type="username" placeholder="Enter Username">
+			<input type="text" id="usernameInput" type="username" placeholder="Enter Username">
 		</div>
 		<div style="padding: 0 0 35px">
 			<p class="inputP" style="display: inline;margin: 1.5px">Password:  </p>
-			<input type="password" placeholder="Enter Password">
+			<input type="password" id="passwordInput" placeholder="Enter Password">
 		</div>
 		<div class="buttonHolder" style="text-align: center;">
 			<button class="loginButton" onclick="login()" style="margin: 20px">Login</button>
@@ -99,13 +99,16 @@
 
 	<script src="/socket.io/socket.io.js"></script>
 	<script> 
-	var socket = io();
+		var socket = io();
 
 		//BEGGINING STUFF
 		function login() {
-			console.log("Logging in...");
+			var userN = document.getElementById("usernameInput").value;
+			var passW = document.getElementById("passwordInput").value;
 			document.getElementById("lobby_div").style.display = "block";
 			document.getElementById("init_div").style.display = "none";
+			console.log("Username: " + userN + ", Password: " + passW);
+			socket.emit('login', {username: userN, password: passW});
 		}
 
 		function signOut() {
