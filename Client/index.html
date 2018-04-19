@@ -1,21 +1,33 @@
 <html>
 <head>
 	<title>Attack On Purdue Login</title>
-	--<link rel="stylesheet" type="text/css" href="styles.css">
+	<!--<link rel="stylesheet" type="text/css" href="styles.css">-->
 </head>
-<body>
-	<div id="init_div">
-		<h1>ATTTACK ON PURDUE</h1>
-		<div>
-			<p style="display: inline">Username:  </p>
+<body style="background: rgba(131,189,247,.5);">
+	<div id="init_div" style="
+		width:350px;
+		height:420px;
+		background: rgba(14,42,66,.7);
+		transform: translateY(10%);
+		margin: 0 auto;
+		box-sizing: border-box;
+		padding: 20px 60px;
+	">
+		<h1 style="padding: 0 0 35px;text-align: center;font: Arvo">ATTTACK ON PURDUE</h1>
+
+		<div style="padding: 0 0 30px">
+			<p style="display: inline;">Username:  </p>
 			<input type="username">
 		</div>
-		<div>
-			<p style="display: inline">Password:  </p>
+		<div style="padding: 0 0 35px">
+			<p style="display: inline;">Password:  </p>
 			<input type="password">
 		</div>
-
-		<button onclick="login()">Login</button>
+		<div style="text-align: center;">
+			<button onclick="login()" style="margin: 20px">Login</button>
+			<button onclick="login()">Sign Up</button>
+		</div>
+	
 	</div>
 
 	<dir id="signup_div" style="display: none">
@@ -44,13 +56,13 @@
 
 		//BEGGINING STUFF
 		function login() {
-			document.getElementById("lobby_div").style = "display: inline-block";
-			document.getElementById("init_div").style = "display: none";
+			document.getElementById("lobby_div").style.display = "block";
+			document.getElementById("init_div").style.display = "none";
 		}
 
 		function signOut() {
-			document.getElementById("init_div").style = "display: inline-block";
-			document.getElementById("lobby_div").style = "display: none";
+			document.getElementById("init_div").style.display = "block";
+			document.getElementById("lobby_div").style.display = "none";
 		}
 
 		//GAME STUFF
