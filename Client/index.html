@@ -21,7 +21,8 @@
 		
 		#lobby_div {
 			width: 100%;
-			transparent: 1;
+			height: 100%;
+			background: #EEEEEE; 
 			box-sizing: border-box;
 			padding: 20px 60px;
 		}
@@ -36,6 +37,13 @@
 
 		button:hover {
 			opacity: .9;
+		}
+		
+		.signOutButton {
+			background-color: #0095F0;
+			position: absolute;
+			top: 5%;
+			right: 2%;
 		}
 
 		.loginButton {
@@ -64,11 +72,27 @@
 			width: 20%;
 			font-size: 115%;
 		}
+		
+		.playButton {
+			background-color: #4CAF50;
+		}
+		
+		.serverHolder {
+			position: relative;
+			top: 20%;
+			background: #000000;
+		}
+		
+		.server {
+			width: 35%;
+			background: #000000; 
+			box-sizing: border-box;
+		}
 	</style>
 </head>
 <body>
 	<!--link rel="stylesheet" type="text/css" href="style.css" /-->
-	<div id="init_div" style="display: none">
+	<div id="init_div" style="display: block">
 		<h1 style="padding: 0 0 35px;text-align: center;font: Arvo">ATTACK ON PURDUE</h1>
 
 		<div style="padding: 0 0 30px">
@@ -83,13 +107,13 @@
 			<p class="loginResponse" style="color: red; text-align: left;"></p>
 		</div>
 		<div class="buttonHolder" style="text-align: center;">
-			<button class="loginButton" onclick="login()" style="margin: 20px">Login</button>
+			<button class="loginButton" onclick="login()" style="margin: 6%">Login</button>
 			<button class="signupButton" onclick="showSignupPage()">Sign Up</button>
 		</div>
 	
 	</div>
 
-	<dir id="signup_div" style="display: block">
+	<dir id="signup_div" style="display: none">
 		<h1>Create Account</h1>
 		<div style="padding: 0 0 30px">
 			<p class="inputP" style="display: inline;">Username:  </p>
@@ -107,10 +131,16 @@
 		</div>
 	</dir>
 
-	<div id="lobby_div" style="display: none">
-		<h1>WELCOME!</h1>
+	<div id="lobby_div" style="display: none; text-align: center;">
+		<h1 class="welcomeHeader">WELCOME!</h1>
 		<p>You are officially logged in and ready to play!</p>
-		<button onclick="signOut()">sign out</button>
+		<button class="signOutButton" onclick="signOut()" style="">sign out</button>
+		<div class="serverHolder">
+			<div class="server">
+				<p class="serverName" style="position: absolute; left: 40%;">Server 1</p>
+				<button class="playButton" onclick="" style="position: absolute; right: 40%">Join</button> 
+			</div>
+		</div>
 	</div>
 	
 
@@ -145,6 +175,7 @@
 				document.getElementById("lobby_div").style.display = "block";
 				document.getElementById("init_div").style.display = "none";
 				document.getElementById("signup_div").style.display = "none";
+				document.getElementsByClassName("welcomeHeader")[0].innerHTML = "Welcome " + document.getElementById("signupUsername").value;
 			}
 			else
 			{

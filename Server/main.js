@@ -295,7 +295,7 @@ io.on('connection', function(socket)
 			if (val.name == data.username)
 			{
 				console.log("Username: " + data.username + " already exists!");
-				socket.emit('loginResponse', {success: false, state: "The username you chose is already taken."});
+				socket.emit('loginResponse', {success: false, state: "That account is already logged in."});
 				usernameExists = true;
 				return;
 			}
