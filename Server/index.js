@@ -57,20 +57,10 @@ var Player = function(id) {
 	return self;
 }
 
-io.on('connection', function(socket) {
-	console.log('SOCKET CONNECTION');
-	//unique identifier for each player
-	socket.id = Math.random();
-	SOCKET_LIST[socket.id] = socket;
-
+Player.onConnect = function(socket) {
 	var player = Player(socket.id);
 	PLAYER_LIST[socket.id] = player;
 
-	//if user exits make sure to errase everything associated w/ user
-	socket.on('disconnect', function() {
-		delete SOCKET_LIST[socket.id];
-		delete PLAYER_LIST[socket.id];
-	});
 	//on keypress
 	socket.on('keyPress', function(data) {
 		if (data.inputId === 'left') {
@@ -83,11 +73,28 @@ io.on('connection', function(socket) {
 			player.pressingDown = data.state;
 		}
 	});
-	/*socket.on('happy', function(data){
-		console.log('I hope your happy because ' + data.reason);
-	});*/
+}
+
+Player.onDisconnect = function(socket) {
+	delete PLAYER_LIST[socket.id];
+}
+
+io.on('connection', function(socket) {
+	console.log('SOCKET CONNECTION');
+	//unique identifier for each player
+	socket.id = Math.random();
+	SOCKET_LIST[socket.id] = socket;
+
+	Player.onConnect(socket);
+
+	//if user exits make sure to errase everything associated w/ user
+	socket.on('disconnect', function() {
+		delete SOCKET_LIST[socket.id];
+		Player.onDisconnect(socket);
+	});
 });
 
+//loops through continuously
 setInterval(function() {
 	//this pack of info will contain all the users location
 	var pack = [];
@@ -95,8 +102,6 @@ setInterval(function() {
 	//loop through to update each users position to pack
 	for (var i in PLAYER_LIST) {
 		var player = PLAYER_LIST[i];
-		//player.x++;
-		//player.y++;
 		player.updatePosition();
 		pack.push({
 			x:player.x,
