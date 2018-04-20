@@ -9,7 +9,7 @@
 			background-size: 100% auto;
 		}
 		
-		#init_div {
+		#init_div, #signup_div {
 			width:35%;
 			height:width;
 			background: #EEEEEE;
@@ -68,29 +68,42 @@
 </head>
 <body>
 	<!--link rel="stylesheet" type="text/css" href="style.css" /-->
-	<div id="init_div">
+	<div id="init_div" style="display: none">
 		<h1 style="padding: 0 0 35px;text-align: center;font: Arvo">ATTACK ON PURDUE</h1>
 
 		<div style="padding: 0 0 30px">
 			<p class="inputP" style="display: inline;">Username:  </p>
 			<input type="text" id="usernameInput" type="username" placeholder="Enter Username">
 		</div>
-		<div style="padding: 0 0 35px">
+		<div style="padding: 0 0 15px">
 			<p class="inputP" style="display: inline;margin: 1.5px">Password:  </p>
 			<input type="password" id="passwordInput" placeholder="Enter Password">
 		</div>
+		<div>
+			<p class="loginResponse" style="color: red; text-align: left;"></p>
+		</div>
 		<div class="buttonHolder" style="text-align: center;">
 			<button class="loginButton" onclick="login()" style="margin: 20px">Login</button>
-			<button class="signupButton" onclick="login()">Sign Up</button>
+			<button class="signupButton" onclick="showSignupPage()">Sign Up</button>
 		</div>
 	
 	</div>
 
-	<dir id="signup_div" style="display: none">
+	<dir id="signup_div" style="display: block">
 		<h1>Create Account</h1>
+		<div style="padding: 0 0 30px">
+			<p class="inputP" style="display: inline;">Username:  </p>
+			<input type="text" id="signupUsername" type="username" placeholder="Enter Username">
+		</div>
+		<div style="padding: 0 0 15px">
+			<p class="inputP" style="display: inline;margin: 1.5px">Password:  </p>
+			<input type="password" id="signupPassword" placeholder="Enter Password">
+		</div>
 		<div>
-			<p>Username: </p>
-			<input type="createuser">
+			<p class="signupResponse" style="color: red; text-align: left;"></p>
+		</div>
+		<div class="buttonHolder" style="text-align: center;">
+			<button class="signupButton" onclick="signup()">Sign Up</button>
 		</div>
 	</dir>
 
@@ -109,29 +122,77 @@
 		var socket = io();
 
 		//BEGGINING STUFF
-		function login() {
+		function showSignupPage()
+		{
+			document.getElementsByClassName("signupResponse")[0].innerHTML = "";
+			document.getElementById("lobby_div").style.display = "none";
+			document.getElementById("init_div").style.display = "none";
+			document.getElementById("signup_div").style.display = "block";
+		}
+		
+		function signup()
+		{
+			var userN = document.getElementById("signupUsername").value;
+			var passW = document.getElementById("signupPassword").value;
+			console.log("Username: " + userN + ", Password: " + passW);
+			socket.emit('signup', {username: userN, password: passW});
+		}
+		
+		socket.on('signupResponse', function(data)
+		{
+			if (data.success == true)
+			{
+				document.getElementById("lobby_div").style.display = "block";
+				document.getElementById("init_div").style.display = "none";
+				document.getElementById("signup_div").style.display = "none";
+			}
+			else
+			{
+				document.getElementsByClassName("signupResponse")[0].innerHTML = data.state;
+				console.log("Failed to login");
+			}
+		});
+		
+		function login() 
+		{
 			var userN = document.getElementById("usernameInput").value;
 			var passW = document.getElementById("passwordInput").value;
 			console.log("Username: " + userN + ", Password: " + passW);
 			socket.emit('login', {username: userN, password: passW});
 		}
 		
-		socket.on('onLogin', function(data) {
-			if (data.state == "Success")
+		socket.on('loginResponse', function(data) 
+		{
+			if (data.success == true)
 			{
 				document.getElementById("lobby_div").style.display = "block";
 				document.getElementById("init_div").style.display = "none";
+				document.getElementById("signup_div").style.display = "none";
 			}
 			else
 			{
+				document.getElementsByClassName("loginResponse")[0].innerHTML = data.state;
 				console.log("Failed to login");
 			}
 		});
 
-		function signOut() {
-			document.getElementById("init_div").style.display = "block";
-			document.getElementById("lobby_div").style.display = "none";
+		function signOut() 
+		{
+			socket.emit('logout', {});
+			console.log("Attempting to logout");
 		}
+		
+		socket.on('logoutResponse', function(data)
+		{
+			if (data.success == true)
+			{
+				document.getElementsByClassName("loginResponse")[0].innerHTML = "";
+				document.getElementById("lobby_div").style.display = "none";
+				document.getElementById("init_div").style.display = "block";
+				document.getElementById("signup_div").style.display = "none";
+			}
+			else { console.log("Failed to logout"); }
+		});
 
 		//GAME STUFF
 		/*

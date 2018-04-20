@@ -131,8 +131,8 @@ function addPlayerToGame(gameId, player)
 
 function removePlayerFromGame(gameId, playerId)
 {
-	if (activeGames[game.id] == undefined) { return "Game with id: " + gameId + " could not be found."; }
-	var game = activeGames[game.id];
+	if (activeGames[gameId] == undefined) { return "Game with id: " + gameId + " could not be found."; }
+	var game = activeGames[gameId];
 	var players = game.players;
 	for (var i = 0; i < players.length; i++)
 	{
@@ -146,6 +146,7 @@ function removePlayerFromGame(gameId, playerId)
 				if (players.length == 1)
 				{
 					//////////no players left in game/////////////
+					delete activeGames[gameId];
 				}
 				else
 				{
@@ -161,8 +162,8 @@ function removePlayerFromGame(gameId, playerId)
 
 function getPlayersInGame(gameId)
 {
-	if (activeGames[game.id] == undefined) { return "Game with id: " + gameId + " could not be found."; }
-	var game = activeGames[game.id];
+	if (activeGames[gameId] == undefined) { return "Game with id: " + gameId + " could not be found."; }
+	var game = activeGames[gameId];
 	var players = game.players;
 	
 	var returnTable = [];
@@ -221,6 +222,9 @@ io.on('connection', function(socket)
 	
 	var player = Object.create(playerConstructor);
 	allPlayers[socket.id] = [player, socket];
+	
+	player = undefined;
+	player = allPlayers[socket.id][0];
 
 	var loggedIn = false;
 
@@ -241,52 +245,111 @@ io.on('connection', function(socket)
 			}
 		}
 		//////////disconnect player from game lists and everything else//////////
+		console.log(player.name + " left the site.");
 		delete allPlayers[socket.id];
+	});
+
+	socket.on('signup', function(data) ////data.username, data.password
+	{
+		if (data.username == undefined || data.password == undefined) { return; }
+		loggedIn = true;
+		console.log("Username: " + data.username + "\nPassword: " + data.password);
+		
+		if (data.username.length < 1) { socket.emit('signupResponse', {success: false, state: "The username you entered is blank."}); return; }
+		if (data.password.length < 1) { socket.emit('signupResponse', {success: false, state: "The password you entered is blank."}); return; }
+		if (data.username.length > 25) { socket.emit('signupResponse', {success: false, state: "The username you entered is too long."}); return; }
+		if (data.password.length > 50) { socket.emit('signupResponse', {success: false, state: "The password you entered is too long."}); return; }
+		////////do stuff with the database/////////
+		var usernameExists = false;
+		Object.keys(allPlayers).forEach(function(key)
+		{
+			var val = allPlayers[key][0];
+			if (val.name == data.username)
+			{
+				console.log("Username: " + data.username + " already exists!");
+				socket.emit('signupResponse', {success: false, state: "The username you chose is already taken."});
+				usernameExists = true;
+				return;
+			}
+		});
+		if (usernameExists == true) { return; }
+		player.name = data.username;
+		socket.emit('signupResponse', {success: true, state: "Success"});
 	});
 
 	socket.on('login', function(data) ////data.username, data.password
 	{
+		if (data.username == undefined || data.password == undefined) { return; }
+		if (data.username.length < 1) { socket.emit('signupResponse', {success: false, state: "The username you entered is blank."}); return; }
+		if (data.password.length < 1) { socket.emit('signupResponse', {success: false, state: "The password you entered is blank."}); return; }
+		if (data.username.length > 25) { socket.emit('signupResponse', {success: false, state: "The username you entered is too long."}); return; }
+		if (data.password.length > 50) { socket.emit('signupResponse', {success: false, state: "The password you entered is too long."}); return; }
+		
 		loggedIn = true;
 		console.log("Username: " + data.username + "\nPassword: " + data.password);
 		////////do stuff with the database/////////
-		socket.emit('onLogin', {state: "Success"});
+		var usernameExists = false;
+		Object.keys(allPlayers).forEach(function(key)
+		{
+			var val = allPlayers[key][0];
+			if (val.name == data.username)
+			{
+				console.log("Username: " + data.username + " already exists!");
+				socket.emit('loginResponse', {success: false, state: "The username you chose is already taken."});
+				usernameExists = true;
+				return;
+			}
+		});
+		if (usernameExists == true) { return; }
+		player.name = data.username;
+		socket.emit('loginResponse', {success: true, state: "Success"});
 	});
 	
 	socket.on('logout', function(data)
 	{
 		loggedIn = false;
-		allPlayers[data.socketId][0] = Object.create(playerConstructor);
-		allPlayers[data.socketId][0].socketId = data.socketId;
-		socket.emit('onLogout', {state: "Success"});
+		allPlayers[socket.id][0] = Object.create(playerConstructor);
+		allPlayers[socket.id][0].socketId = socket.id;
+		socket.emit('logoutResponse', {success: true, state: "Success"});
 	});
 
 	socket.on('createGame', function(data)
 	{
-		if (loggedIn == false) { socket.emit('createGameResponse', {state: "Failed- user is not logged in"}); return; }
-		if (player.game != undefined) { socket.emit('createGameResponse', {state: "Failed- user is already in a game"}); return; }
+		if (loggedIn == false) { socket.emit('createGameResponse', {success: false, state: "Failed- user is not logged in"}); return; }
+		if (player.game != undefined) { socket.emit('createGameResponse', {success: false, state: "Failed- user is already in a game"}); return; }
 		createGame(player);
-		socket.emit('createGameResponse', {state: "Success"});
+		socket.emit('createGameResponse', {success: true, state: "Success"});
 	});
 
 	socket.on('joinGame', function(data)
 	{
-		if (loggedIn == false) { socket.emit('joinGameResponse', {state: "Failed- user is not logged in"}); }
-		if (player.game != undefined) { socket.emit('joinGameResponse', {state: "Failed- user is already in a game"}); return; }
-		if (data.gameId == undefined) { socket.emit('joinGameResponse', {state: "Failed- data.gameId is undefined"}); return; }
+		if (loggedIn == false) { socket.emit('joinGameResponse', {success: false, state: "Failed- user is not logged in"}); }
+		if (player.game != undefined) { socket.emit('joinGameResponse', {success: false, state: "Failed- user is already in a game"}); return; }
+		if (data.gameId == undefined) { socket.emit('joinGameResponse', {success: false, state: "Failed- data.gameId is undefined"}); return; }
+		if (activeGames[data.gameId] == undefined) { socket.emit('joinGameResponse', {success: false, state: "Failed- Game does not exist"}); return; }
 		
 		addPlayerToGame(data.gameId, player);
-		socket.emit('joinGameResponse', {state: "Success"});
+		socket.emit('joinGameResponse', {success: true, state: "Success"});
+	});
+
+	socket.on('leaveGame', function(data)
+	{
+		if (loggedIn == false) { socket.emit('joinGameResponse', {success: false, state: "Failed- user is not logged in"}); }
+		if (player.game == undefined) { socket.emit('joinGameResponse', {success: false, state: "Failed- user is not in a game"}); return; }
+		
+		removePlayerFromGame(player.gameId, player.id);
+		socket.emit('leaveGameResponse', {success: true, state: "Success"});
 	});
 
 	socket.on('getCreatedGames', function(data)
 	{
-		socket.emit('createdGames', {games: getWaitingGames()});
+		socket.emit('getCreatesGamesResponse', {games: getWaitingGames()});
 	});
 
 	socket.on('getPlayersInGame', function(data)
 	{
 		var gameId = data.gameId;
-		socket.emit('playersInGame', {players: getPlayersInGame(gameId)});
+		socket.emit('getPlayersInGameResponse', {players: getPlayersInGame(gameId)});
 	});
 
 	
