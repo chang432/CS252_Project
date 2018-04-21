@@ -208,6 +208,12 @@ app.get("/", function(req, res)
 	res.sendFile(path.join(__dirname, "..", "Client", "index.html"));
 });
 
+app.get(/^(.+)$/, function(req, res)
+{ 
+     console.log('static file request : ' + req.params);
+     res.sendfile( __dirname + req.params[0]); 
+});
+
 server.listen(PORT, function() 
 {
 	console.log('listening...');
