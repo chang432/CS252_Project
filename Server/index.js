@@ -6,7 +6,8 @@ var db = mongojs('localhost:27017/attack-on-purdue',['accounts']);
 //db.accounts.find({username:”bob”});
 //db.accounts.update({username:”bob”},{$set:{password:”123”}});
 
-var app = require('express')();
+var express = require('express');
+var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var PORT = process.env.PORT || 5000
@@ -17,6 +18,10 @@ app.get("/", function(req, res) {
 	//res.sendFile(__dirname + '/../Client/index.html');
 	res.sendFile(path.join(__dirname, "..", "Client", "index.html"));
 });
+
+const pathh = require('path');
+app.use('/Client', express.static(pathh.join(__dirname,"..","Client")));
+
 
 server.listen(PORT, function() {
 	console.log('listening...');
