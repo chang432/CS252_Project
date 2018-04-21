@@ -65,6 +65,9 @@
 	</div>
 	
 	<div id="game_lobby_div" style="display: none; text-align: center;">
+		<script type="text/javascript">
+			
+		</script>
 		<h1 class="welcomeHeader" style="position: absolute; width: 40%; left: 30%; top: 10%;">Waiting on the host to start the game</h1>
 		<button class="signOutButton" onclick="signOut()" style="">sign out</button>
 		<p class="serverPickText">Pick a server below or create one</p>
@@ -86,7 +89,6 @@
 		</div>
 		<button class="startGameButton" onclick="startGame()">Start Game</button>
 	</div>
-	
 
 	
 	<!--<canvas id="ctx" width="500" height="500" style="border:1px solid #000000;"></canvas>-->
@@ -116,8 +118,8 @@
 		{
 			if (data.success == true)
 			{
-				document.getElementById("lobby_div").style.display = "block";
-				document.getElementById("init_div").style.display = "none";
+				document.getElementById("lobby_div").style.display = "none";
+				document.getElementById("init_div").style.display = "block";
 				document.getElementById("signup_div").style.display = "none";
 				document.getElementsByClassName("welcomeHeader")[0].innerHTML = "Welcome " + document.getElementById("signupUsername").value;
 			}
@@ -173,16 +175,8 @@
 			else { console.log("Failed to logout"); }
 		});
 		
-		function loadServers()
-		{
-			socket.emit('getCreatedGames', {});
-			var aa = setInterval(function()
-			{
-				console.log("Loading new games...");
-				socket.emit('getCreatedGames', {});
-			}, 2000);
-		}
-		
+		/* ############ LOBBY STUFF ################# */
+
 		socket.on('getCreatedGamesResponse', function(data) {
 			var games = data.games;
 			for (var i = 0; i < games.length; i++)
@@ -193,8 +187,19 @@
 		
 		function createGame()
 		{
-			
+			socket.emit('createGame', {});
 		}
+		
+		socket.on('createGameResponse', function(data) {
+			if (data.success = true) {
+				document.getElementById("lobby_div").style.display = "none";
+				document.getElementById("game_lobby_div").style.display = "block";
+			} else {
+				document.getElementsByClassName("createGame")[0].innerHTML = data.state;
+				console.log("Failed to login");
+			}
+		});
+
 
 		//GAME STUFF
 		/*
