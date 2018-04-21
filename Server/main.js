@@ -298,7 +298,7 @@ io.on('connection', function(socket)
 		Object.keys(allPlayers).forEach(function(key)
 		{
 			var val = allPlayers[key][0];
-			if (val.name == data.username)
+			if (val.name == data.username && val.socketId != socket.id)
 			{
 				console.log("Username: " + data.username + " already exists!");
 				socket.emit('loginResponse', {success: false, state: "That account is already logged in."});
