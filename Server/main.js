@@ -381,3 +381,15 @@ io.on('connection', function(socket)
 		}
 	});
 });
+
+setInterval(function()
+{
+	var resp = {games: getWaitingGames()};
+	for (i in allPlayers)
+	{
+		if (allPlayers[i][1] != undefined)
+		{
+			allPlayers[i][1].emit('getCreatesGamesResponse', {games: getWaitingGames()});
+		}	
+	}
+}, 2000);
