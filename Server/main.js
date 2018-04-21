@@ -100,6 +100,7 @@ function createGame(host)
 	host.gameId = game.id;
 	
 	activeGames[game.id] = game;
+	return game.id;
 }
 
 function addPlayerToGame(gameId, player)
@@ -211,7 +212,7 @@ app.get("/", function(req, res)
 app.get(/^(.+)$/, function(req, res)
 { 
      console.log('static file request : ' + req.params);
-     res.sendFile( __dirname + req.params[0]); 
+     res.sendfile( __dirname + req.params[0]); 
 });
 
 server.listen(PORT, function() 
@@ -323,8 +324,8 @@ io.on('connection', function(socket)
 	{
 		if (loggedIn == false) { socket.emit('createGameResponse', {success: false, state: "Failed- user is not logged in"}); return; }
 		if (player.game != undefined) { socket.emit('createGameResponse', {success: false, state: "Failed- user is already in a game"}); return; }
-		createGame(player);
-		socket.emit('createGameResponse', {success: true, state: "Success"});
+		var serverId = createGame(player);
+		socket.emit('createGameResponse', {success: true, state: "Success", gameId: serverId});
 	});
 
 	socket.on('joinGame', function(data)
@@ -389,7 +390,7 @@ setInterval(function()
 	{
 		if (allPlayers[i][1] != undefined)
 		{
-			allPlayers[i][1].emit('getCreatesGamesResponse', {games: getWaitingGames()});
+			allPlayers[i][1].emit('getCreatedGamesResponse', {games: getWaitingGames()});
 		}	
 	}
 }, 2000);
