@@ -40,8 +40,8 @@ button:hover {
 .signOutButton {
 	background-color: #0095F0;
 	position: absolute;
-	top: 5%;
-	right: 2%;
+	top: 10px;
+	right: 20px;
 }
 
 .loginButton {
@@ -71,19 +71,81 @@ input[type=text], input[type=password] {
 	width: 20%;
 	font-size: 115%;
 }
+
+.divider {
+	height: 4px;
+	width: 100px;
+	display: inline-block;
+}
+
+.serverPickText {
+	position: absolute;
+	top: 26%;
+	left: 40%;
+	width: 20%;
+}
 		
+.serverHolder, .playerListHolder {
+	position: relative;
+	top: 15%;
+	left: 30%;
+	width: 40%;
+	height: 50%;
+	overflow: auto;
+	background: #BBBBBB;
+	border-radius: 5px;
+}
+
+.server, .playerPart {
+	position: relative;
+	top: 4px;
+	left: 4px;
+	right: 4px;
+	width: calc(100% - 8px);
+	height: 60px;
+	background: #FFFFFF; 
+	box-sizing: border-box;
+	border-radius: 3px;
+}
+
+.serverName, .playerName {
+	position: absolute; 
+	left: 5%; 
+	top: 5%;
+}
+
+.playerCount {
+	position: absolute;
+	left: 40%;
+	top: 5%;
+	width: 20%;
+}
+
 .playButton {
+	position: absolute; 
+	right: 2%;
+	width: 20%;
 	background-color: #4CAF50;
 }
-		
-.serverHolder {
-	position: relative;
-	top: 20%;
-	background: #000000;
+
+.createGameButton, .startGameButton {
+	position: absolute;
+	left: 42.5%;
+	top: 80%;
+	width: 15%;
+	background-color: #FFAA00;
 }
-		
-.server {
-	width: 35%;
-	background: #000000; 
-	box-sizing: border-box;
+
+.playerListHolder {
+	position: absolute;
+	width: 20%;
+	left: 40%;
+	top: 25%;
+}
+
+.playerType {
+	position: absolute; 
+	right: 2%;
+	width: 20%;
+	background-color: #27B70B;
 }

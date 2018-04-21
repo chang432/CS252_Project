@@ -47,12 +47,44 @@
 		<h1 class="welcomeHeader">WELCOME!</h1>
 		<p>You are officially logged in and ready to play!</p>
 		<button class="signOutButton" onclick="signOut()" style="">sign out</button>
+		<p class="serverPickText">Pick a server below or create one</p>
 		<div class="serverHolder">
-			<div class="server">
-				<p class="serverName" style="position: absolute; left: 40%;">Server 1</p>
-				<button class="playButton" onclick="" style="position: absolute; right: 40%">Join</button> 
+			<div class="server" style="display: block">
+				<p class="serverName">Server 1</p>
+				<p class="playerCount">0 Players</p>
+				<button class="playButton" onclick="">Join</button> 
+			</div>
+			<div class="divider"> </div>
+			<div class="server" style="display: block">
+				<p class="serverName">Server 1</p>
+				<p class="playerCount">1 Players</p>
+				<button class="playButton" onclick="">Join</button> 
 			</div>
 		</div>
+		<button class="createGameButton" onclick="createGame()">Create Game</button>
+	</div>
+	
+	<div id="game_lobby_div" style="display: none; text-align: center;">
+		<h1 class="welcomeHeader" style="position: absolute; width: 40%; left: 30%; top: 10%;">Waiting on the host to start the game</h1>
+		<button class="signOutButton" onclick="signOut()" style="">sign out</button>
+		<p class="serverPickText">Pick a server below or create one</p>
+		<div class="playerListHolder">
+			<div class="playerPart" style="display: block">
+				<p class="playerName">Player Name</p>
+				<button class="playerType" onclick="">Host</button> 
+			</div>
+			<div class="divider"> </div>
+			<div class="playerPart" style="display: block">
+				<p class="playerName">Player Name</p>
+				<button class="playerType" onclick="">Host</button> 
+			</div>
+			<div class="divider"> </div>
+			<div class="playerPart" style="display: block">
+				<p class="playerName">Player Name</p>
+				<button class="playerType" onclick="">Host</button> 
+			</div>
+		</div>
+		<button class="startGameButton" onclick="startGame()">Start Game</button>
 	</div>
 	
 
@@ -129,6 +161,10 @@
 		{
 			if (data.success == true)
 			{
+				document.getElementById("signupUsername").value = "";
+				document.getElementById("signupPassword").value = "";
+				document.getElementById("usernameInput").value = "";
+				document.getElementById("passwordInput").value = "";
 				document.getElementsByClassName("loginResponse")[0].innerHTML = "";
 				document.getElementById("lobby_div").style.display = "none";
 				document.getElementById("init_div").style.display = "block";
@@ -136,6 +172,29 @@
 			}
 			else { console.log("Failed to logout"); }
 		});
+		
+		function loadServers()
+		{
+			socket.emit('getCreatedGames', {});
+			var aa = setInterval(function()
+			{
+				console.log("Loading new games...");
+				socket.emit('getCreatedGames', {});
+			}, 2000);
+		}
+		
+		socket.on('getCreatedGamesResponse', function(data) {
+			var games = data.games;
+			for (var i = 0; i < games.length; i++)
+			{
+				console.log(games[i].id);
+			}
+		});
+		
+		function createGame()
+		{
+			
+		}
 
 		//GAME STUFF
 		/*
