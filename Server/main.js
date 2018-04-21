@@ -286,10 +286,10 @@ io.on('connection', function(socket)
 	socket.on('login', function(data) ////data.username, data.password
 	{
 		if (data.username == undefined || data.password == undefined) { return; }
-		if (data.username.length < 1) { socket.emit('signupResponse', {success: false, state: "The username you entered is blank."}); return; }
-		if (data.password.length < 1) { socket.emit('signupResponse', {success: false, state: "The password you entered is blank."}); return; }
-		if (data.username.length > 25) { socket.emit('signupResponse', {success: false, state: "The username you entered is too long."}); return; }
-		if (data.password.length > 50) { socket.emit('signupResponse', {success: false, state: "The password you entered is too long."}); return; }
+		if (data.username.length < 1) { socket.emit('loginResponse', {success: false, state: "The username you entered is blank."}); return; }
+		if (data.password.length < 1) { socket.emit('loginResponse', {success: false, state: "The password you entered is blank."}); return; }
+		if (data.username.length > 25) { socket.emit('loginResponse', {success: false, state: "The username you entered is too long."}); return; }
+		if (data.password.length > 50) { socket.emit('loginResponse', {success: false, state: "The password you entered is too long."}); return; }
 		
 		loggedIn = true;
 		console.log("Username: " + data.username + "\nPassword: " + data.password);
