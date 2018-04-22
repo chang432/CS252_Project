@@ -392,8 +392,6 @@ setInterval(function()
 	{
 		if (allPlayers[i][1] != undefined)
 		{
-
-			console.log("YOOO");
 			allPlayers[i][1].emit('getCreatedGamesResponse', {games: getWaitingGames()});
 		}	
 	}
