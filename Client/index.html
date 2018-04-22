@@ -51,32 +51,32 @@
 		<div class="serverHolder">
 			<div class="server" id="Server 0" style="display: none">
 				<p class="serverName">Server 1</p>
-				<p class="playerCount">0 Players</p>
-				<button class="playButton" onclick="">Join</button> 
+				<p class="playerCount" id="pc_0">0 Players</p>
+				<button class="playButton" id="b0" onclick="joinGame('b0')">Join</button> 
 			</div>
 			<div class="divider"> </div>
 			<div class="server" id="Server 1" style="display: none">
 				<p class="serverName">Server 2</p>
-				<p class="playerCount">1 Players</p>
-				<button class="playButton" onclick="">Join</button> 
+				<p class="playerCount" id="pc_1">1 Players</p>
+				<button class="playButton" id="b1" onclick="joinGame('b1')">Join</button> 
 			</div>
 			<div class="divider"> </div>
 			<div class="server" id="Server 2" style="display: none">
 				<p class="serverName">Server 3</p>
-				<p class="playerCount">1 Players</p>
-				<button class="playButton" onclick="">Join</button> 
+				<p class="playerCount" id="pc_2">1 Players</p>
+				<button class="playButton" id="b2" onclick="joinGame('b2')">Join</button> 
 			</div>
 			<div class="divider"> </div>
 			<div class="server" id="Server 3" style="display: none">
 				<p class="serverName">Server 4</p>
-				<p class="playerCount">1 Players</p>
-				<button class="playButton" onclick="">Join</button> 
+				<p class="playerCount" id="pc_3">1 Players</p>
+				<button class="playButton" id="b3" onclick="joinGame('b3')">Join</button> 
 			</div>
 			<div class="divider"> </div>
 			<div class="server" id="Server 4" style="display: none">
 				<p class="serverName">Server 5</p>
-				<p class="playerCount">1 Players</p>
-				<button class="playButton" onclick="">Join</button> 
+				<p class="playerCount" id="pc_4">1 Players</p>
+				<button class="playButton" id="b4" onclick="joinGame('b4')">Join</button> 
 			</div>
 		</div>
 		<button class="createGameButton" onclick="createGame()">Create Game</button>
@@ -90,17 +90,22 @@
 		<button class="signOutButton" onclick="signOut()" style="">sign out</button>
 		<p class="serverPickText">Pick a server below or create one</p>
 		<div class="playerListHolder">
-			<div class="playerPart" style="display: block">
+			<div class="playerPart" id="Player 0" style="display: block">
 				<p class="playerName">Player Name</p>
 				<button class="playerType" onclick="">Host</button> 
 			</div>
 			<div class="divider"> </div>
-			<div class="playerPart" style="display: block">
+			<div class="playerPart" id="Player 1" style="display: none">
 				<p class="playerName">Player Name</p>
 				<button class="playerType" onclick="">Host</button> 
 			</div>
 			<div class="divider"> </div>
-			<div class="playerPart" style="display: block">
+			<div class="playerPart" id="Player 2" style="display: none">
+				<p class="playerName">Player Name</p>
+				<button class="playerType" onclick="">Host</button> 
+			</div>
+			<div class="divider"> </div>
+			<div class="playerPart" id="Player 3" style="display: none">
 				<p class="playerName">Player Name</p>
 				<button class="playerType" onclick="">Host</button> 
 			</div>
@@ -194,18 +199,42 @@
 		});
 		
 		/* ############ LOBBY STUFF ################# */
-		
 		socket.on('getCreatedGamesResponse', function(data) {
-			
 			var games = data.games;
 			for (var i = 0; i < games.length; i++)
 			{
+				//binds game id to button for join game
+				var button = "b" + i;
+				document.getElementById(button).setAttribute("gameId", games[i].id);
+				//console.log(document.getElementById(button).getAttribute("gameId"));
 				var name = "Server " + i;
 				document.getElementById(name).style.display = "block";
-				console.log(games[i].id);
+				var playerCountText = "pc_" + i;
+				document.getElementById(playerCountText).innerHTML = games[i].numPlayers + " Players";
+				//console.log(games[i].id);
 			}
 		});
+
+		function joinGame(buttonId) {
+			var gameid = document.getElementById(buttonId).getAttribute("gameId");
+			socket.emit('joinGame', {gameId: gameid});
+		}
 		
+		socket.on('joinGameResponse', function(data) {
+			if (data.success = true) {
+				document.getElementById("game_lobby_div").style.display = "block";
+				var loop = setInterval(function() {
+					if (document.getElementById("game_lobby_div").style.display == "none") {
+						window.clearInterval(loop);
+					} else {
+						socket.emit('getPlayersInGame', {gameId: data.gameId});
+					}
+				}, 1000);
+			} else {
+				console.log("Failed to join game");
+			}
+		});
+
 		function createGame()
 		{
 			socket.emit('createGame', {});
@@ -214,6 +243,7 @@
 		socket.on('createGameResponse', function(data) {
 			if (data.success = true) {
 				document.getElementById("lobby_div").style.display = "none";
+				document.getElementById("game_lobby_div").setAttribute("gameId", data.gameId);
 				document.getElementById("game_lobby_div").style.display = "block";
 			} else {
 				document.getElementsByClassName("createGame")[0].innerHTML = data.state;

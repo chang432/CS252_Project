@@ -72,7 +72,6 @@ var gameConstructor = {
 	message: "" ////i.e. 3, 2, 1 or Player has left the game
 }
 
-
 function getMagnitude(uno, dos)
 {
 	return Math.sqrt(Math.pow(uno.x - dos.x, 2) + Math.pow(uno.y - dos.y, 2));
@@ -251,6 +250,7 @@ io.on('connection', function(socket)
 				}
 			}
 		}
+		
 		//////////disconnect player from game lists and everything else//////////
 		console.log(player.name + " left the site.");
 		delete allPlayers[socket.id];
@@ -338,7 +338,7 @@ io.on('connection', function(socket)
 		if (activeGames[data.gameId] == undefined) { socket.emit('joinGameResponse', {success: false, state: "Failed- Game does not exist"}); return; }
 		
 		addPlayerToGame(data.gameId, player);
-		socket.emit('joinGameResponse', {success: true, state: "Success"});
+		socket.emit('joinGameResponse', {success: true, state: "Success", gameId: data.gameId});
 	});
 
 	socket.on('leaveGame', function(data)
