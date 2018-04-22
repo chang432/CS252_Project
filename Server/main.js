@@ -99,7 +99,7 @@ function createGame(host)
 	host.game = game;
 	host.gameId = game.id;
 	
-	activeGames[game.id] = game;
+	activeGames[host.gameId] = game;
 }
 
 function addPlayerToGame(gameId, player)
@@ -324,6 +324,7 @@ io.on('connection', function(socket)
 		if (loggedIn == false) { socket.emit('createGameResponse', {success: false, state: "Failed- user is not logged in"}); return; }
 		if (player.game != undefined) { socket.emit('createGameResponse', {success: false, state: "Failed- user is already in a game"}); return; }
 		createGame(player);
+
 		socket.emit('createGameResponse', {success: true, state: "Success"});
 	});
 
@@ -389,7 +390,9 @@ setInterval(function()
 	{
 		if (allPlayers[i][1] != undefined)
 		{
-			allPlayers[i][1].emit('getCreatesGamesResponse', {games: getWaitingGames()});
+			//console.log("YOOO");
+			//allPlayers[i][1].emit('getCreatedGamesResponse', {games: getWaitingGames()});
 		}	
 	}
 }, 2000);
+
