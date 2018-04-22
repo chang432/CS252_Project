@@ -49,31 +49,31 @@
 		<button class="signOutButton" onclick="signOut()" style="">sign out</button>
 		<p class="serverPickText">Pick a server below or create one</p>
 		<div class="serverHolder">
-			<div class="server" style="display: none">
+			<div class="server" id="Server 0" style="display: none">
 				<p class="serverName">Server 1</p>
 				<p class="playerCount">0 Players</p>
 				<button class="playButton" onclick="">Join</button> 
 			</div>
 			<div class="divider"> </div>
-			<div class="server" style="display: none">
+			<div class="server" id="Server 1" style="display: none">
 				<p class="serverName">Server 2</p>
 				<p class="playerCount">1 Players</p>
 				<button class="playButton" onclick="">Join</button> 
 			</div>
 			<div class="divider"> </div>
-			<div class="server" style="display: none">
+			<div class="server" id="Server 2" style="display: none">
 				<p class="serverName">Server 3</p>
 				<p class="playerCount">1 Players</p>
 				<button class="playButton" onclick="">Join</button> 
 			</div>
 			<div class="divider"> </div>
-			<div class="server" style="display: none">
+			<div class="server" id="Server 3" style="display: none">
 				<p class="serverName">Server 4</p>
 				<p class="playerCount">1 Players</p>
 				<button class="playButton" onclick="">Join</button> 
 			</div>
 			<div class="divider"> </div>
-			<div class="server" style="display: none">
+			<div class="server" id="Server 4" style="display: none">
 				<p class="serverName">Server 5</p>
 				<p class="playerCount">1 Players</p>
 				<button class="playButton" onclick="">Join</button> 
@@ -196,14 +196,14 @@
 		/* ############ LOBBY STUFF ################# */
 		
 		socket.on('getCreatedGamesResponse', function(data) {
-			/*
+			
 			var games = data.games;
 			for (var i = 0; i < games.length; i++)
 			{
 				var name = "Server " + i;
-				document.getElementById("Server 1").style.display = "block";
+				document.getElementById(name).style.display = "block";
 				console.log(games[i].id);
-			}*/
+			}
 		});
 		
 		function createGame()

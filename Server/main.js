@@ -193,7 +193,7 @@ function getWaitingGames()
 		{
 			returnTable.push({
 				id: game.id,
-				host: game.host,
+				host: game.host.name,
 				numPlayers: game.players.length
 			});
 		}
@@ -387,7 +387,7 @@ io.on('connection', function(socket)
 
 setInterval(function()
 {
-	var resp = {games: getWaitingGames()};
+	//var resp = {games: getWaitingGames()};
 	for (i in allPlayers)
 	{
 		if (allPlayers[i][1] != undefined)
