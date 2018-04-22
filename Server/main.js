@@ -392,12 +392,9 @@ setInterval(function()
 	{
 		if (allPlayers[i][1] != undefined)
 		{
-<<<<<<< HEAD
-			//console.log("YOOO");
-			//allPlayers[i][1].emit('getCreatedGamesResponse', {games: getWaitingGames()});
-=======
+
+			console.log("YOOO");
 			allPlayers[i][1].emit('getCreatedGamesResponse', {games: getWaitingGames()});
->>>>>>> 2a05808919bb163ad248d0f392a746cdc4932856
 		}	
 	}
 }, 2000);
