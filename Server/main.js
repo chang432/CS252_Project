@@ -10,10 +10,13 @@ var enemySpeed = 1.5;
 var activeGames = [];
 var allPlayers = []; /////[Player, Socket];
 
+var radianToDegree = 180 / 3.141592;
+
 var playerConstructor = {
 	name: "Guest",
 	id: "",
 	socketId: -1,
+	socket: undefined,
 	playing: false,
 	gameId: "",
 	game: undefined, ////game object here
@@ -26,7 +29,8 @@ var playerConstructor = {
 	size: 4,
 	x: -1,
 	y: -1,
-	rotation: [0, 1],
+	rotation: [0, 0],
+	rotationDegrees: 0,
 	moveVector: [false, false, false, false] ///up, down, left, right
 }
 
@@ -36,7 +40,8 @@ var enemyConstructor = {
 	health: 50,
 	x: -1,
 	y: -1,
-	rotation: [0, 1],
+	rotation: [0, 0],
+	rotationDegrees: 0,
 	enemyType: "Normal"
 }
 
@@ -46,7 +51,8 @@ var missileConstructor = {
 	size: 1,
 	x: -1,
 	y: -1,
-	rotation: [0, 1]
+	rotation: [0, 1],
+	rotationDegrees: 0
 }
 
 var baseConstructor = {
@@ -66,11 +72,12 @@ var gameConstructor = {
 	enemies: [],
 	bases: [],
 	bullets: [],
-	deadEnemies: [], ////to show explosions or whatever effect for the missile hitting the enemy
+	removeThings: [], ///the ids of things that were destroyed (bullets, enemies) that need to be removed
 	round: 1,
 	enemiesLeft: 0,
 	message: "" ////i.e. 3, 2, 1 or Player has left the game
 }
+
 
 function getMagnitude(uno, dos)
 {
@@ -200,6 +207,164 @@ function getWaitingGames()
 	return returnTable;
 }
 
+function startGame(game)
+{
+	var players = game.players;
+	var prePickedPositions = [[10, 10], [35, 75], [80, 26]];
+	for (var i = 0; i < 3; i++)
+	{
+		var base = Object.create(baseConstructor);
+		base.id = generateId(6);
+		base.x = prePickedPositions[i][0];
+		base.y = prePickedPositions[i][1];
+		game.bases.push(base);
+	}
+	for (var i = 0; i < players.length; i++)
+	{
+		players[i].x = Math.floor(Math.random() * 90) + 5;
+		players[i].y = Math.floor(Math.random() * 90) + 5;
+	}
+
+	game.started = true;
+}
+
+function advancePositions(game)
+{
+	var players = game.players;
+	var enemies = game.enemies;
+	var bullets = game.bullets;
+	
+	for (var i = 0; i < players.length; i++)
+	{
+		var player = players[i];
+		var actualVector = [0, 0];
+		
+		if (player.moveVector[0] == true) { actualVector[1] = 1; }
+		else if (player.moveVector[1] == true) { actualVector[1] = -1; }
+		if (player.moveVector[2] == true) { actualVector[0] = -1; }
+		else if (player.moveVector[3] == true) { actualVector[0] = 1; }
+		
+		if (actualVector[0] == 0 && actualVector[1] == 0) { actualVector = [0, 1]; }
+		if (actualVector[0] != 0 && actualVector[1] != 0) { actualVector = [actualVector[0] * Math.sqrt(2), actualVector[1] * Math.sqrt(2)]; }
+		
+		if (player.x + actualVector[0] < 100 && player.x + actualVector[0] > 0) { player.x = player.x + actualVector[0]; }
+		if (player.y + actualVector[1] < 100 && player.y + actualVector[1] > 0) { player.y = player.y + actualVector[1]; }
+		
+		if (Math.abs(player.y) > 0 && Math.abs(player.x) > 0)
+		{
+			player.rotationDegrees = Math.floor(Math.atan(player.y / player.x) * radianToDegree + .01);
+		}
+		else if (player.y == 0)
+		{
+			if (player.x > 0) { player.rotationDegrees = 0; }
+			else { player.rotationDegrees = 180; }
+		}
+		else if (player.x == 0)
+		{
+			if (player.y > 0) { player.rotationDegrees = 90; }
+			else { player.rotationDegrees = 270; }
+		}
+	}
+	
+	for (var i = bullets.length - 1; i > -1; i--)
+	{
+		var bullet = bullets[i];
+		if (bullet.x + bullet.rotation[0] < 100 && bullet.x + bullet.rotation[0] > 0) { bullet.x = bullet.x + bullet.rotation[0]; }
+		else //////destroy bullet, outside of bounds
+		{
+			game.removeThings.push({className: "Bullet", id: bullet.id});
+			bullets.splice(i, 1);
+		}
+		
+		if (bullet.y + bullet.rotation[1] < 100 && bullet.y + bullet.rotation[1] > 0) { bullet.y = bullet.y + bullet.rotation[1]; }
+		else //////destroy bullet, outside of bounds
+		{
+			game.removeThings.push({className: "Bullet", id: bullet.id});
+			bullets.splice(i, 1);
+		}
+	}
+}
+
+function fireBullet(player)
+{
+	var game = player.game;
+	var bullets = game.bullets;
+	
+	var newBullet = Object.create(missileConstructor);
+	newBullet.id = generateId(6);
+	newBullet.sentBy = player;
+	newBullet.x = player.x + ((player.size * player.rotation[0]) / 2);
+	newBullet.y = player.y + ((player.size * player.rotation[1]) / 2);
+	newBullet.rotation = [player.rotation[0], player.rotation[1]];
+	newBullet.rotationDegrees = player.rotationDegrees;
+
+	bullets.push(newBullet);
+}
+
+function getAllPositions(game)
+{
+	var players = game.players;
+	var enemies = game.enemies;
+	var bullets = game.bullets;
+	var bases = game.bases;
+	var removeThings = game.removeThings;
+	
+	var returnTable = [];
+
+	for (var i = 0; i < players.length; i++)
+	{
+		returnTable.push({
+			className: "Player", 
+			id: players[i].id, 
+			name: players[i].name,
+			x: players[i].x, 
+			y: players[i].y, 
+			rotation: players[i].rotationDegrees,
+			health: players[i].health,
+		});
+	}
+	for (var i = 0; i < enemies.length; i++)
+	{
+		returnTable.push({
+			className: "Enemy",
+			id: enemies[i].id,
+			x: enemies[i].x,
+			y: enemies[i].y,
+			rotation: enemies[i].rotationDegrees,
+			health: enemies[i].health
+		});
+	}
+	for (var i = 0; i < bullets.length; i++)
+	{
+		returnTable.push({
+			className: "Bullet",
+			id: bullets[i].id,
+			x: bullets[i].x, 
+			y: bullets[i].y,
+			rotation: bullets[i].rotationDegrees
+		});
+	}
+	for (var i = 0; i < bases.length; i++)
+	{
+		returnTable.push({
+			className: "Base",
+			id: bases[i].id,
+			x: bases[i].x,
+			y: bases[i].y,
+			health: bases[i].health
+		});
+	}
+	for (var i = 0; i < removeThings; i++)
+	{
+		returnTable.push({
+			className: "Remove",
+			id: removeThings[i]
+		});
+	}
+	game.removeThings.splice(0, game.removeThings.length);
+	return returnTable;
+}
+
 
 app.get("/", function(req, res) 
 {
@@ -211,7 +376,7 @@ app.get("/", function(req, res)
 app.get(/^(.+)$/, function(req, res)
 { 
      console.log('static file request : ' + req.params);
-     res.sendfile( __dirname + req.params[0]); 
+     res.sendfile( __dirname + req.params[0]);
 });
 
 server.listen(PORT, function() 
@@ -227,6 +392,7 @@ io.on('connection', function(socket)
 	socket.emit('socketId', {socketId: socket.id});
 	
 	var player = Object.create(playerConstructor);
+	player.socket = socket;
 	allPlayers[socket.id] = [player, socket];
 	
 	player = undefined;
@@ -241,6 +407,19 @@ io.on('connection', function(socket)
 		var game = player.game;
 		if (game != undefined && player.gameId.length > 1)
 		{
+			if (game.host.id == player.id)
+			{
+				if (game.players.length > 1)
+				{
+					if (game.players[0].id == player.id) { game.host = game.players[1]; }
+					else { game.host = game.players[1]; }
+				}
+				else //close game
+				{
+					delete activeGames[game.id];
+				}
+			}
+			
 			var players = game.players;
 			for (var i = 0; i < players.length; i++)
 			{
@@ -361,6 +540,25 @@ io.on('connection', function(socket)
 		socket.emit('getPlayersInGameResponse', {players: getPlayersInGame(gameId)});
 	});
 
+	socket.on('startGame', function(data)
+	{
+		if (player.game != undefined && player.game.host.id == player.id && player.game.started == false)
+		{
+			var game = player.game;
+			startGame(game);
+			game.message = "The game is starting in 5";
+			var countDown = 5;
+			for (var i = 1; i < 6; i++)
+			{
+				setTimeout(function() { countDown--; game.message = "The game is starting in " + countDown; }, i * 1000);
+			}
+			setTimeout(function()
+			{
+				
+			}, 5000);
+		}
+		else { socket.emit('startGameResponse', {success: false, state: "Failed- Either you are not in a game or you are not the host."}); }
+	});
 	
 
 	//on keypress
@@ -369,18 +567,29 @@ io.on('connection', function(socket)
 		if (data.inputId === 'left') 
 		{
 			player.moveVector[2] = data.state;
+			if (data.state == true) { player.moveVector[3] = false; }
 		} 
 		else if (data.inputId === 'right') 
 		{
 			player.moveVector[3] = data.state;
+			if (data.state == true) { player.moveVector[2] = false; }
 		} 
 		else if (data.inputId === 'up') 
 		{
 			player.moveVector[0] = data.state;
+			if (data.state == true) { player.moveVector[1] = false; }
 		} 
 		else if (data.inputId === 'down') 
 		{
 			player.moveVector[1] = data.state;
+			if (data.state == true) { player.moveVector[0] = false; }
+		}
+		else if (data.inputId === 'space')
+		{
+			if (player.game != undefined && player.game.started == true)
+			{
+				fireBullet(player);
+			}
 		}
 	});
 });
@@ -397,3 +606,19 @@ setInterval(function()
 	}
 }, 2000);
 
+setInterval(function()
+{
+	for (var i in activeGames)
+	{
+		var game = activeGames[i];
+		if (game.started == true)
+		{
+			advancePositions(game);
+			var positions = getAllPositions(game);
+			for (var a = 0; a < game.players.length; a++)
+			{
+				game.players[a].socket.emit('positionUpdate', {objectPositions: positions});
+			}
+		}	
+	}
+}, 50);
