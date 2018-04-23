@@ -75,6 +75,7 @@ var gameConstructor = {
 	removeThings: [], ///the ids of things that were destroyed (bullets, enemies) that need to be removed
 	round: 1,
 	enemiesLeft: 0,
+	enemyKills: 0,
 	message: "" ////i.e. 3, 2, 1 or Player has left the game
 }
 
@@ -221,6 +222,7 @@ function startGame(game)
 	}
 	for (var i = 0; i < players.length; i++)
 	{
+		players[i].health = 100;
 		players[i].x = Math.floor(Math.random() * 90) + 5;
 		players[i].y = Math.floor(Math.random() * 90) + 5;
 	}
@@ -236,33 +238,37 @@ function advancePositions(game)
 	
 	for (var i = 0; i < players.length; i++)
 	{
-		var player = players[i];
-		var actualVector = [0, 0];
-		
-		if (player.moveVector[0] == true) { actualVector[1] = 1; }
-		else if (player.moveVector[1] == true) { actualVector[1] = -1; }
-		if (player.moveVector[2] == true) { actualVector[0] = -1; }
-		else if (player.moveVector[3] == true) { actualVector[0] = 1; }
-		
-		if (actualVector[0] == 0 && actualVector[1] == 0) { actualVector = [0, 1]; }
-		if (actualVector[0] != 0 && actualVector[1] != 0) { actualVector = [actualVector[0] * Math.sqrt(2), actualVector[1] * Math.sqrt(2)]; }
-		
-		if (player.x + actualVector[0] < 100 && player.x + actualVector[0] > 0) { player.x = player.x + actualVector[0]; }
-		if (player.y + actualVector[1] < 100 && player.y + actualVector[1] > 0) { player.y = player.y + actualVector[1]; }
-		
-		if (Math.abs(player.y) > 0 && Math.abs(player.x) > 0)
+		if (players[i].health > 0)
 		{
-			player.rotationDegrees = Math.floor(Math.atan(player.y / player.x) * radianToDegree + .01);
-		}
-		else if (player.y == 0)
-		{
-			if (player.x > 0) { player.rotationDegrees = 0; }
-			else { player.rotationDegrees = 180; }
-		}
-		else if (player.x == 0)
-		{
-			if (player.y > 0) { player.rotationDegrees = 90; }
-			else { player.rotationDegrees = 270; }
+			if (players[i].health < 100) { players[i].health = players[i].health + .05; }
+			var player = players[i];
+			var actualVector = [0, 0];
+			
+			if (player.moveVector[0] == true) { actualVector[1] = 1; }
+			else if (player.moveVector[1] == true) { actualVector[1] = -1; }
+			if (player.moveVector[2] == true) { actualVector[0] = -1; }
+			else if (player.moveVector[3] == true) { actualVector[0] = 1; }
+			
+			if (actualVector[0] == 0 && actualVector[1] == 0) { actualVector = [0, 1]; }
+			if (actualVector[0] != 0 && actualVector[1] != 0) { actualVector = [actualVector[0] * Math.sqrt(2), actualVector[1] * Math.sqrt(2)]; }
+			
+			if (player.x + actualVector[0] < 100 && player.x + actualVector[0] > 0) { player.x = player.x + actualVector[0]; }
+			if (player.y + actualVector[1] < 100 && player.y + actualVector[1] > 0) { player.y = player.y + actualVector[1]; }
+			
+			if (Math.abs(player.y) > 0 && Math.abs(player.x) > 0)
+			{
+				player.rotationDegrees = Math.floor(Math.atan(player.y / player.x) * radianToDegree + .01);
+			}
+			else if (player.y == 0)
+			{
+				if (player.x > 0) { player.rotationDegrees = 0; }
+				else { player.rotationDegrees = 180; }
+			}
+			else if (player.x == 0)
+			{
+				if (player.y > 0) { player.rotationDegrees = 90; }
+				else { player.rotationDegrees = 270; }
+			}
 		}
 	}
 	
@@ -272,21 +278,48 @@ function advancePositions(game)
 		if (bullet.x + bullet.rotation[0] < 100 && bullet.x + bullet.rotation[0] > 0) { bullet.x = bullet.x + bullet.rotation[0]; }
 		else //////destroy bullet, outside of bounds
 		{
-			game.removeThings.push({className: "Bullet", id: bullet.id});
+			game.removeThings.push(bullet.id);
 			bullets.splice(i, 1);
 		}
 		
 		if (bullet.y + bullet.rotation[1] < 100 && bullet.y + bullet.rotation[1] > 0) { bullet.y = bullet.y + bullet.rotation[1]; }
 		else //////destroy bullet, outside of bounds
 		{
-			game.removeThings.push({className: "Bullet", id: bullet.id});
+			game.removeThings.push(bullet.id);
 			bullets.splice(i, 1);
+		}
+	}
+	
+	for (var i = enemies.length - 1; i > -1; i--)
+	{
+		var enemy = enemies[i];
+		if (enemy.x + enemy.rotation[0] < 100 && enemy.x + enemy.rotation[0] > 0) { enemy.x = enemy.x + enemy.rotation[0]; }
+		else //////destroy bullet, outside of bounds
+		{
+			enemy.rotation[0] = enemy.rotation[0] * -1;
+		}
+		
+		if (enemy.y + enemy.rotation[1] < 100 && enemy.y + enemy.rotation[1] > 0) { enemy.y = enemy.y + enemy.rotation[1]; }
+		else //////destroy bullet, outside of bounds
+		{
+			enemy.rotation[1] = enemy.rotation[1] * -1;
+		}
+		
+		if (Math.random() * 6 < 1) ///change angle slightly
+		{
+			enemy.rotation[0] = enemy.rotation[0] + (Math.random() / 10 - .05);
+			enemy.rotation[1] = enemy.rotation[1] + (Math.random() / 10 - .05);
+			var mag = Math.sqrt(Math.pow(enemy.rotation[0], 2) + Math.pow(enemy.rotation[1], 2));
+			enemy.rotation[0] = enemy.rotation[0] / mag;
+			enemy.rotation[1] = enemy.rotation[1] / mag;
+			enemy.rotationDegrees = Math.floor(Math.atan(enemy.rotation[1] / enemy.rotation[0]) * radianToDegrees + .01);
 		}
 	}
 }
 
 function fireBullet(player)
 {
+	if (player.health <= 0) { return; }
 	var game = player.game;
 	var bullets = game.bullets;
 	
@@ -295,7 +328,7 @@ function fireBullet(player)
 	newBullet.sentBy = player;
 	newBullet.x = player.x + ((player.size * player.rotation[0]) / 2);
 	newBullet.y = player.y + ((player.size * player.rotation[1]) / 2);
-	newBullet.rotation = [player.rotation[0], player.rotation[1]];
+	newBullet.rotation = [player.rotation[0] * 2, player.rotation[1] * 2];
 	newBullet.rotationDegrees = player.rotationDegrees;
 
 	bullets.push(newBullet);
@@ -313,15 +346,19 @@ function getAllPositions(game)
 
 	for (var i = 0; i < players.length; i++)
 	{
-		returnTable.push({
-			className: "Player", 
-			id: players[i].id, 
-			name: players[i].name,
-			x: players[i].x, 
-			y: players[i].y, 
-			rotation: players[i].rotationDegrees,
-			health: players[i].health,
-		});
+		if (players[i].health > 0)
+		{
+			returnTable.push({
+				className: "Player", 
+				id: players[i].id, 
+				name: players[i].name,
+				x: players[i].x, 
+				y: players[i].y, 
+				rotation: players[i].rotationDegrees,
+				health: players[i].health,
+				kills: players[i].kills
+			});
+		}
 	}
 	for (var i = 0; i < enemies.length; i++)
 	{
@@ -361,8 +398,68 @@ function getAllPositions(game)
 			id: removeThings[i]
 		});
 	}
+	returnTable.push({totalKills: game.enemyKills});
 	game.removeThings.splice(0, game.removeThings.length);
 	return returnTable;
+}
+
+function checkBulletEnemyCollisions(game)
+{
+	var enemies = game.enemies;
+	var bullets = game.bullets;
+	for (var i = enemies.length - 1; i > -1; i--)
+	{
+		var enemy = enemies[i];
+		for (var a = bullets.length - 1; a > -1; a--)
+		{
+			var bullet = bullets[a];
+			if (getMagnitude(enemy, bullet) < ((enemy.size + bullet.size) / 2))
+			{
+				var playerWhoShot = bullet.sentBy;
+				game.removeThings.push(bullet.id);
+				game.bullets.splice(a, 1);
+				
+				enemy.health = enemy.health - 40;
+				if (enemy.health <= 0)
+				{
+					playerWhoShot.kills++;
+					game.enemyKills++;
+					
+					game.removeThings.push(enemy.id);
+					game.enemies.splice(i, 1);
+					break;
+				}
+			}
+		}	
+	}
+}
+
+function checkEnemyPlayerCollisions(game)
+{
+	var enemies = game.enemies;
+	var players = game.players;
+	for (var i = enemies.length - 1; i > -1; i--)
+	{
+		var enemy = enemies[i];
+		for (var a = players.length - 1; a > -1; a--)
+		{
+			var player = player[a];
+			if (player.health > 0 && getMagnitude(enemy, player) < ((enemy.size + player.size) / 2))
+			{
+				player.kills++;
+				game.enemyKills++;
+				
+				game.removeThings.push(enemy.id);
+				game.enemies.splice(i, 1);
+				player.health = player.health - enemy.health;
+				if (player.health <= 0)
+				{
+					game.removeThings.push(player.id);
+				}
+				break;
+			}
+		}	
+	}
 }
 
 
@@ -601,7 +698,14 @@ setInterval(function()
 	{
 		if (allPlayers[i][1] != undefined)
 		{
-			allPlayers[i][1].emit('getCreatedGamesResponse', {games: getWaitingGames()});
+			if (allPlayers[i][0].game != undefined && allPlayers[i][0].game.started == false) /////player is in a game
+			{
+				allPlayers[i][1].emit('getPlayersInGameResponse', {players: getPlayersInGame(allPlayers[i][0].gameId)});
+			}
+			else
+			{
+				allPlayers[i][1].emit('getCreatedGamesResponse', {games: getWaitingGames()});
+			}
 		}	
 	}
 }, 2000);
@@ -614,6 +718,14 @@ setInterval(function()
 		if (game.started == true)
 		{
 			advancePositions(game);
+			checkBulletEnemyCollisions(game);
+			checkEnemyPlayerCollisions(game);
+			
+			if (game.enemies.length < game.players.length * 2)
+			{
+				//createEnemy(game);
+			}
+			
 			var positions = getAllPositions(game);
 			for (var a = 0; a < game.players.length; a++)
 			{
