@@ -685,6 +685,7 @@ io.on('connection', function(socket)
 	//on keypress
 	socket.on('keyPress', function(data) 
 	{
+		if (data.socketid == undefined || data.socketid != socket.id) { return; }
 		if (data.inputId === 'left') 
 		{
 			player.moveVector[2] = data.state;
