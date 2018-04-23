@@ -153,34 +153,28 @@
   			}
       	],
       	{name: "Styled Map"});
-
         var uluru = {lat: 40.426490, lng: -86.918943};
         var map = new google.maps.Map(document.getElementById('map'), {
           zoom: 16,
           center: uluru,
           disableDefaultUI: true,
         });
-
         var m_earhart = new google.maps.Marker({
         	position: {lat: 40.425820, lng: -86.924948},
         	map: map
         });
-
         var m_tark = new google.maps.Marker({
         	position: {lat: 40.430616, lng: -86.920707},
         	map: map
         });
-
         var m_armstrong = new google.maps.Marker({
         	position: {lat: 40.430981, lng: -86.914859},
         	map: map
         });
-
         var m_memorial = new google.maps.Marker({
         	position: {lat: 40.424990, lng: -86.914324},
         	map: map
         });
-
         map.mapTypes.set('styled_map', styledMapType);
         map.setMapTypeId('styled_map');
       }
@@ -193,7 +187,6 @@
 	<script> 
 		var socket = io();
 		var socket_id;
-
 		//BEGGINING STUFF
 		function showSignupPage()
 		{
@@ -252,7 +245,6 @@
 				console.log("Failed to login");
 			}
 		});
-
 		function signOut() 
 		{
 			socket.emit('logout', {});
@@ -277,7 +269,6 @@
 		});
 		
 		/* ############ LOBBY STUFF ################# */
-
 		//for updating the games list
 		socket.on('getCreatedGamesResponse', function(data) {
 			var games = data.games;
@@ -294,28 +285,23 @@
 				//console.log(games[i].id);
 			}
 		});
-
 		//for updating the player list
 		socket.on('getPlayersInGameResponse', function(data) {
 			var players = data.players;
 			for (var i = 0;i < players.length; i++) {
 				//start game button 
 				//THIS NEEDS COOKIES ENABLED TO TOGGLE START GAME BUTTON
-
 				//player name
 				var pname = "pname " + i;
 				document.getElementById(pname).innerHTML = players[i].name;
-
 				//host or player
 				var pstatus = "status " + i;
 				document.getElementById(pstatus).innerHTML = players[i].hosting;
-
 				//update what player number
 				var pid = "Player " + i;
 				document.getElementById(pid).style.display = "block";
 			}
 		});
-
 		function joinGame(buttonId) {
 			var gameid = document.getElementById(buttonId).getAttribute("gameId");
 			socket.emit('joinGame', {gameId: gameid});
@@ -329,7 +315,6 @@
 				console.log("Failed to join game");
 			}
 		});
-
 		function createGame()
 		{
 			socket.emit('createGame', {});
@@ -345,7 +330,6 @@
 				console.log("Failed to login");
 			}
 		});
-
 		function startGame() {
 			socket.emit('startGame', {});
 		}
@@ -358,7 +342,6 @@
 				console.log("Failed to start game");
 			}
 		});*/
-
 		//GAME STUFF
 		var p0 = new Image();
 		p0.src = "images/Plane1.png";
@@ -378,14 +361,12 @@
 			document.getElementById("body").style.backgroundImage = "none";
 			document.getElementById("canvas").style.display = "block";
 			document.getElementById("map").style.display = "block";
-
 			//console.log("The new x position is " + data.x);
 			//console.log("\nThe new y position is " + data.y);
 			pos = data.objectPositions;
 			//console.log("this: " + pos.name);
 			ctx.clearRect(0,0,1845,945);
 			//ctx.drawImage(p0, 100, 100, 50, 50);
-
 			for (var i=0;i<pos.length;i++) {
 				if (pos[i].className == "Player") {
 					//console.log("Player: " + i);
@@ -414,7 +395,6 @@
 				socket.emit('keyPress', {inputId:'up',state:true});
 			}
 		}
-
 		//when key is released send signal to server
 		document.onkeyup = function(event) {
 			if (event.keyCode === 68) { 
