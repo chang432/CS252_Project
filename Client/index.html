@@ -356,8 +356,8 @@
 		});*/
 
 		//GAME STUFF
-		var p1 = new Image();
-		p1.src = "images/Plane1.png";
+		var p0 = new Image();
+		p0.src = "images/Plane1.png";
 		//p1.style.width = "50%";
 		//p1.style.height = "auto";
 		var ctx = document.getElementById("ctx").getContext("2d");
@@ -371,15 +371,24 @@
 			//console.log("The new x position is " + data.x);
 			//console.log("\nThe new y position is " + data.y);
 			pos = data.objectPositions;
-			console.log("this: " + pos[0].name);
+			//console.log("this: " + pos.name);
 			ctx.clearRect(0,0,1845,945);
-			ctx.drawImage(p1, 100, 100, 50, 50);
+			//ctx.drawImage(p0, 100, 100, 50, 50);
+
+			for (var i=0;i<pos.length;i++) {
+				if (pos[i].className == "Player" && pos[i].plane == "p0") {
+					console.log("Player: " + i);
+					ctx.drawImage(p0, pos[i].x, pos[i].y, 50,50);
+				} else if (pos[i].className == "Player" && pos[i].plane == "p1") {
+
+				}
+			}
 			/*
 			for (var i = 0;i<data.length;i++) {
 				ctx.fillText(data[i].number,data[i].x,data[i].y);
 			}*/
 		});
-		/*
+		
 		//when key is pressed send signal to server
 		document.onkeydown = function(event) {
 			if (event.keyCode === 68) { 
@@ -412,7 +421,7 @@
 				//w
 				socket.emit('keyPress', {inputId:'up',state:false});
 			}
-		}*/
+		}
 	</script>
 </body>
 </html>

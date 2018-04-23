@@ -238,22 +238,35 @@ function advancePositions(game)
 	
 	for (var i = 0; i < players.length; i++)
 	{
+		//console.log(i + " : " + players[i].id);
 		if (players[i].health > 0)
 		{
 			if (players[i].health < 100) { players[i].health = players[i].health + .05; }
 			var player = players[i];
 			var actualVector = [0, 0];
 			
-			if (player.moveVector[0] == true) { actualVector[1] = 1; }
-			else if (player.moveVector[1] == true) { actualVector[1] = -1; }
-			if (player.moveVector[2] == true) { actualVector[0] = -1; }
-			else if (player.moveVector[3] == true) { actualVector[0] = 1; }
+			if (player.moveVector[0] == true) { actualVector[1] = 10; }
+			else if (player.moveVector[1] == true) { actualVector[1] = -10; }
+			if (player.moveVector[2] == true) { actualVector[0] = -10; }
+			else if (player.moveVector[3] == true) { actualVector[0] = 10; }
 			
-			if (actualVector[0] == 0 && actualVector[1] == 0) { actualVector = [0, 1]; }
-			if (actualVector[0] != 0 && actualVector[1] != 0) { actualVector = [actualVector[0] * Math.sqrt(2), actualVector[1] * Math.sqrt(2)]; }
+			//if (actualVector[0] == 0 && actualVector[1] == 0) { actualVector = [0, 1]; }
+			//if (actualVector[0] != 0 && actualVector[1] != 0) { actualVector = [actualVector[0] * Math.sqrt(2), actualVector[1] * Math.sqrt(2)]; }
 			
-			if (player.x + actualVector[0] < 1845 && player.x + actualVector[0] > 0) { player.x = player.x + (actualVector[0]*10); }
-			if (player.y + actualVector[1] < 945 && player.y + actualVector[1] > 0) { player.y = player.y + (actualVector[1]*10); }
+			//if hits left border
+			if (player.x + actualVector[0] < 0 && actualVector[0] == 10) { player.x = player.x + actualVector[0]; }
+
+			//if hits right border
+			if (player.x + actualVector[0] > 1845 && actualVector[0] == -10) { player.x = player.x + actualVector[0]; }
+
+			//if hits top border
+			if (player.y + actualVector[1] < 0 && actualVector[1] == -10) { player.y = player.y - actualVector[1]; }
+
+			//if hits bottom border
+			if (player.y + actualVector[1] > 945 && actualVector[1] == 10) { player.y = player.y - actualVector[1]; }
+
+			if (player.x + actualVector[0] < 1845 && player.x + actualVector[0] > 0) { player.x = player.x + actualVector[0]; }
+			if (player.y - actualVector[1] < 945 && player.y - actualVector[1] > 0) { player.y = player.y - actualVector[1]; }
 			
 			if (Math.abs(player.y) > 0 && Math.abs(player.x) > 0)
 			{
@@ -351,8 +364,10 @@ function getAllPositions(game)
 	{
 		if (players[i].health > 0)
 		{
+			var p = "p" + i;
 			returnTable.push({
 				className: "Player", 
+				plane: p,
 				id: players[i].id, 
 				name: players[i].name,
 				x: players[i].x, 
