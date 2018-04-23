@@ -606,7 +606,7 @@ io.on('connection', function(socket)
 		});
 		if (usernameExists == true) { return; }
 		player.name = data.username;
-		socket.emit('loginResponse', {success: true, state: "Success"});
+		socket.emit('loginResponse', {success: true, state: "Success", socketid: socket.id});
 	});
 	
 	socket.on('logout', function(data)
