@@ -31,11 +31,7 @@ var playerConstructor = {
 	y: -1,
 	rotation: [0, 0],
 	rotationDegrees: 0,
-	moveVector: [false, false, false, false],
-	up: false,
-	down: false,
-	left: false,
-	right: false,
+	moveVector: [false, false, false, false] ///up, down, left, right
 }
 
 var enemyConstructor = {
@@ -110,7 +106,7 @@ function createGame(host)
 	game.players.push(host);
 	host.game = game;
 	host.gameId = game.id;
-	
+
 	activeGames[game.id] = game;
 	return game.id;
 }
@@ -191,7 +187,6 @@ function getPlayersInGame(gameId)
 			hosting: hostString
 		});
 	}
-
 	return returnTable;
 }
 
@@ -240,29 +235,38 @@ function advancePositions(game)
 	var players = game.players;
 	var enemies = game.enemies;
 	var bullets = game.bullets;
-
+	
 	for (var i = 0; i < players.length; i++)
 	{
+		//console.log(i + " : " + players[i].id);
 		if (players[i].health > 0)
 		{
 			if (players[i].health < 100) { players[i].health = players[i].health + .05; }
-			if (new Date().getTime() % 1000 < 25)
-			{
-				//console.log("Move vector for player " + players[i].name + ": " + JSON.stringify(players[i].moveVector));
-			}
 			var player = players[i];
 			var actualVector = [0, 0];
 			
-			if (player.moveVector[0] == true) { actualVector[1] = -1; }
-			else if (player.moveVector[1] == true) { actualVector[1] = 1; }
-			if (player.moveVector[2] == true) { actualVector[0] = -1; }
-			else if (player.moveVector[3] == true) { actualVector[0] = 1; }
+			if (player.moveVector[0] == true) { actualVector[1] = 10; }
+			else if (player.moveVector[1] == true) { actualVector[1] = -10; }
+			if (player.moveVector[2] == true) { actualVector[0] = -10; }
+			else if (player.moveVector[3] == true) { actualVector[0] = 10; }
 			
-			if (actualVector[0] == 0 && actualVector[1] == 0) { actualVector = [0, -1]; }
-			if (actualVector[0] != 0 && actualVector[1] != 0) { actualVector = [actualVector[0] * Math.sqrt(2), actualVector[1] * Math.sqrt(2)]; }
+			//if (actualVector[0] == 0 && actualVector[1] == 0) { actualVector = [0, 1]; }
+			//if (actualVector[0] != 0 && actualVector[1] != 0) { actualVector = [actualVector[0] * Math.sqrt(2), actualVector[1] * Math.sqrt(2)]; }
 			
-			if (player.x + actualVector[0] < 100 && player.x + actualVector[0] > 0) { player.x = player.x + actualVector[0]; }
-			if (player.y + actualVector[1] < 100 && player.y + actualVector[1] > 0) { player.y = player.y + actualVector[1]; }
+			//if hits left border
+			if (player.x + actualVector[0] < 0 && actualVector[0] == 10) { player.x = player.x + actualVector[0]; }
+
+			//if hits right border
+			if (player.x + actualVector[0] > 1845 && actualVector[0] == -10) { player.x = player.x + actualVector[0]; }
+
+			//if hits top border
+			if (player.y + actualVector[1] < 0 && actualVector[1] == -10) { player.y = player.y - actualVector[1]; }
+
+			//if hits bottom border
+			if (player.y + actualVector[1] > 945 && actualVector[1] == 10) { player.y = player.y - actualVector[1]; }
+
+			if (player.x + actualVector[0] < 1845 && player.x + actualVector[0] > 0) { player.x = player.x + actualVector[0]; }
+			if (player.y - actualVector[1] < 945 && player.y - actualVector[1] > 0) { player.y = player.y - actualVector[1]; }
 			
 			if (Math.abs(player.y) > 0 && Math.abs(player.x) > 0)
 			{
@@ -281,6 +285,7 @@ function advancePositions(game)
 		}
 	}
 	
+	/*
 	for (var i = bullets.length - 1; i > -1; i--)
 	{
 		var bullet = bullets[i];
@@ -321,9 +326,9 @@ function advancePositions(game)
 			var mag = Math.sqrt(Math.pow(enemy.rotation[0], 2) + Math.pow(enemy.rotation[1], 2));
 			enemy.rotation[0] = enemy.rotation[0] / mag;
 			enemy.rotation[1] = enemy.rotation[1] / mag;
-			enemy.rotationDegrees = Math.floor(Math.atan(enemy.rotation[1] / enemy.rotation[0]) * radianToDegree + .01);
+			enemy.rotationDegrees = Math.floor(Math.atan(enemy.rotation[1] / enemy.rotation[0]) * radianToDegrees + .01);
 		}
-	}
+	}*/
 }
 
 function fireBullet(player)
@@ -353,12 +358,16 @@ function getAllPositions(game)
 	
 	var returnTable = [];
 
+	//var players = [];
+	//returnTable[0] = players;
 	for (var i = 0; i < players.length; i++)
 	{
 		if (players[i].health > 0)
 		{
+			var p = "p" + i;
 			returnTable.push({
 				className: "Player", 
+				plane: p,
 				id: players[i].id, 
 				name: players[i].name,
 				x: players[i].x, 
@@ -369,6 +378,7 @@ function getAllPositions(game)
 			});
 		}
 	}
+	/*
 	for (var i = 0; i < enemies.length; i++)
 	{
 		returnTable.push({
@@ -409,6 +419,7 @@ function getAllPositions(game)
 	}
 	returnTable.push({totalKills: game.enemyKills});
 	game.removeThings.splice(0, game.removeThings.length);
+	*/
 	return returnTable;
 }
 
@@ -452,7 +463,7 @@ function checkEnemyPlayerCollisions(game)
 		var enemy = enemies[i];
 		for (var a = players.length - 1; a > -1; a--)
 		{
-			var player = players[a];
+			var player = player[a];
 			if (player.health > 0 && getMagnitude(enemy, player) < ((enemy.size + player.size) / 2))
 			{
 				player.kills++;
@@ -469,43 +480,6 @@ function checkEnemyPlayerCollisions(game)
 			}
 		}	
 	}
-}
-
-function createEnemy(game)
-{
-	var enemy = Object.create(enemyConstructor);
-	enemy.id = generateId(6);
-	if (Math.random() < .5) ////do it on x axis
-	{
-		if (Math.random() < .5)///bottom x axis
-		{
-			enemy.x = Math.floor(Math.random() * 98) + 1;
-			enemy.y = 1;
-		}
-		else
-		{
-			enemy.x = Math.floor(Math.random() * 98) + 1;
-			enemy.y = 99;
-		}
-	}
-	else
-	{
-		if (Math.random() < .5)///bottom y axis
-		{
-			enemy.x = 1;
-			enemy.y = Math.floor(Math.random() * 98) + 1;
-		}
-		else
-		{
-			enemy.x = 99;
-			enemy.y = Math.floor(Math.random() * 98) + 1;
-		}
-	}
-	enemy.rotation = [50 - enemy.x, 50 - enemy.y];
-	var rotMag = Math.sqrt(Math.pow(enemy.rotation[0], 2) + Math.pow(enemy.rotation[1], 2));
-	enemy.rotation = [enemy.rotation[0] / rotMag, enemy.rotation[1] / rotMag];
-	enemy.rotationDegrees = Math.floor(Math.atan(enemy.rotation[1] / enemy.rotation[0]) * radianToDegree + .1);
-	game.enemies.push(enemy);
 }
 
 
@@ -632,7 +606,7 @@ io.on('connection', function(socket)
 		});
 		if (usernameExists == true) { return; }
 		player.name = data.username;
-		socket.emit('loginResponse', {success: true, state: "Success", socketId: socket.id});
+		socket.emit('loginResponse', {success: true, state: "Success"});
 	});
 	
 	socket.on('logout', function(data)
@@ -690,6 +664,7 @@ io.on('connection', function(socket)
 		{
 			var game = player.game;
 			startGame(game);
+			/*
 			game.message = "The game is starting in 5";
 			var countDown = 5;
 			for (var i = 1; i < 6; i++)
@@ -700,52 +675,43 @@ io.on('connection', function(socket)
 			{
 				
 			}, 5000);
+			*/
+			socket.emit('startGameResponse', {success: true})
 		}
 		else { socket.emit('startGameResponse', {success: false, state: "Failed- Either you are not in a game or you are not the host."}); }
 	});
 	
+
 	//on keypress
 	socket.on('keyPress', function(data) 
 	{
-		if (data.socketId == undefined || data.socketid != socket.id) { return; }
-		//console.log(player.name);
 		if (data.inputId === 'left') 
 		{
-			player.left = data.state;
-			if (data.state == true) { player.right = false; }
+			player.moveVector[2] = data.state;
+			if (data.state == true) { player.moveVector[3] = false; }
 		} 
 		else if (data.inputId === 'right') 
 		{
-			player.right = data.state;
-			if (data.state == true) { player.left = false; }
+			player.moveVector[3] = data.state;
+			if (data.state == true) { player.moveVector[2] = false; }
 		} 
 		else if (data.inputId === 'up') 
 		{
-			player.up = data.state;
-			if (data.state == true) { player.down = false; }
+			player.moveVector[0] = data.state;
+			if (data.state == true) { player.moveVector[1] = false; }
 		} 
 		else if (data.inputId === 'down') 
 		{
-			player.down = data.state;
-			if (data.state == true) { player.up = false; }
-		}
+			player.moveVector[1] = data.state;
+			if (data.state == true) { player.moveVector[0] = false; }
+		}/*
 		else if (data.inputId === 'space')
 		{
 			if (player.game != undefined && player.game.started == true)
 			{
 				fireBullet(player);
 			}
-		}
-		if (new Date().getTime() % 1000 < 25 && player.game != undefined)
-			{
-				var players = player.game.players;
-				console.log(players.length);
-				for (var i = 0; i < players.length; i++)
-				{
-					var playerr = players[i];
-					console.log(playerr.up + " " + player.down + " " + player.left + " " + player.right);
-				}
-			}
+		}*/
 	});
 });
 
@@ -775,16 +741,20 @@ setInterval(function()
 		var game = activeGames[i];
 		if (game.started == true)
 		{
+			
 			advancePositions(game);
+			/*
 			checkBulletEnemyCollisions(game);
 			checkEnemyPlayerCollisions(game);
 			
-			if (game.enemies.length < Math.floor(game.players.length * 1.5) + 1)
+			if (game.enemies.length < game.players.length * 2)
 			{
-				createEnemy(game);
+				//createEnemy(game);
 			}
-			
+			*/
+			//console.log("boo");
 			var positions = getAllPositions(game);
+			
 			for (var a = 0; a < game.players.length; a++)
 			{
 				game.players[a].socket.emit('positionUpdate', {objectPositions: positions});
