@@ -704,14 +704,10 @@ io.on('connection', function(socket)
 		else { socket.emit('startGameResponse', {success: false, state: "Failed- Either you are not in a game or you are not the host."}); }
 	});
 	
-	socket.on('keyPress', function(data)
-	{
-		
-	});
-	
 	//on keypress
 	socket.on('keyPress', function(data) 
 	{
+		if (data.socketId == undefined || data.socketId != socket.id) { return; }
 		//console.log(player.name);
 		if (data.inputId === 'left') 
 		{
