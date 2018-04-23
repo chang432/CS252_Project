@@ -103,9 +103,10 @@ function createGame(host)
 	var game = Object.create(gameConstructor);
 	game.id = generateId(9);
 	game.host = host;
+	game.players.push(host);
 	host.game = game;
 	host.gameId = game.id;
-	
+
 	activeGames[game.id] = game;
 	return game.id;
 }
@@ -186,7 +187,6 @@ function getPlayersInGame(gameId)
 			hosting: hostString
 		});
 	}
-
 	return returnTable;
 }
 
@@ -489,6 +489,7 @@ io.on('connection', function(socket)
 	socket.emit('socketId', {socketId: socket.id});
 	
 	var player = Object.create(playerConstructor);
+	player.id = generateId(8);
 	player.socket = socket;
 	allPlayers[socket.id] = [player, socket];
 	
@@ -643,6 +644,7 @@ io.on('connection', function(socket)
 		{
 			var game = player.game;
 			startGame(game);
+			/*
 			game.message = "The game is starting in 5";
 			var countDown = 5;
 			for (var i = 1; i < 6; i++)
@@ -653,6 +655,8 @@ io.on('connection', function(socket)
 			{
 				
 			}, 5000);
+			*/
+			socket.emit('startGameResponse', {success: true})
 		}
 		else { socket.emit('startGameResponse', {success: false, state: "Failed- Either you are not in a game or you are not the host."}); }
 	});

@@ -3,7 +3,7 @@
 	<title>Attack On Purdue Login</title>
 	<!--<link rel="stylesheet" type="text/css" href="styles.css">-->
 </head>
-<body>
+<body id="body">
 	<link rel="stylesheet" type="text/css" href="css/style.css">
 	<div id="init_div" style="display: block">
 		<h1 style="padding: 0 0 35px;text-align: center;font: Arvo">ATTACK ON PURDUE</h1>
@@ -51,7 +51,7 @@
 		<div class="serverHolder">
 			<div class="server" id="Server 0" style="display: none">
 				<p class="serverName">Server 1</p>
-				<p class="playerCount" id="pc_0">0 Players</p>
+				<p class="playerCount" id="pc_0">1 Players</p>
 				<button class="playButton" id="b0" onclick="joinGame('b0')">Join</button> 
 			</div>
 			<div class="divider"> </div>
@@ -90,32 +90,111 @@
 		<button class="signOutButton" onclick="signOut()" style="">sign out</button>
 		<p class="serverPickText">Pick a server below or create one</p>
 		<div class="playerListHolder">
-			<div class="playerPart" id="Player 0" style="display: block">
-				<p class="playerName">Player Name</p>
-				<button class="playerType" onclick="">Host</button> 
+			<div class="playerPart" id="Player 0" style="display: none">
+				<p class="playerName" id="pname 0">Player Name</p>
+				<button class="playerType" id="status 0" onclick="">Hos</button> 
 			</div>
 			<div class="divider"> </div>
 			<div class="playerPart" id="Player 1" style="display: none">
-				<p class="playerName">Player Name</p>
-				<button class="playerType" onclick="">Host</button> 
+				<p class="playerName" id="pname 1">Player Name</p>
+				<button class="playerType" id="status 1" onclick="">Hos</button> 
 			</div>
 			<div class="divider"> </div>
 			<div class="playerPart" id="Player 2" style="display: none">
-				<p class="playerName">Player Name</p>
-				<button class="playerType" onclick="">Host</button> 
+				<p class="playerName" id="pname 2">Player Name</p>
+				<button class="playerType" id="status 2" onclick="">Hos</button> 
 			</div>
 			<div class="divider"> </div>
 			<div class="playerPart" id="Player 3" style="display: none">
-				<p class="playerName">Player Name</p>
-				<button class="playerType" onclick="">Host</button> 
+				<p class="playerName" id="pname 3">Player Name</p>
+				<button class="playerType" id="status 3" onclick="">Hos</button> 
 			</div>
 		</div>
-		<button class="startGameButton" onclick="startGame()">Start Game</button>
+		<button class="startGameButton" id="start_button" style="display: block" onclick="startGame()">Start Game</button>
 	</div>
 
-	
-	<!--<canvas id="ctx" width="500" height="500" style="border:1px solid #000000;"></canvas>-->
+	<!-- Canvas stuff -->
+	<div id="canvas" style="
+		display: none;
+		z-index: 2;
+		position: relative;
+	"> 
+		<canvas id="ctx" height="5000" width="5000" style="
+			border:1px solid #000000;
+			height: 100%;
+			width: 100%;
+		"></canvas>
+	</div>
 
+	<!-- Google maps stuff -->
+	<div id="map" style="
+		display: none;
+		height: 100%;
+		width: 100%;
+		z-index: 1;
+		position: relative;
+		top: -100%;
+	"></div>
+    <script>
+      function initMap() {
+      	var styledMapType = new google.maps.StyledMapType([
+      		{
+    			featureType: "poi",
+    			elementType: "labels",
+    			stylers: [
+      				{ visibility: "off" }
+    			]
+  			},{
+  				featureType: "road",
+    			elementType: "labels",
+    			stylers: [
+      				{ visibility: "off" }
+    			]
+  			},{
+  				featureType: 'water',
+  				elementType: "labels",
+    			stylers: [
+      				{ visibility: "off" }
+    			]
+  			}
+      	],
+      	{name: "Styled Map"});
+
+        var uluru = {lat: 40.426490, lng: -86.918943};
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 16,
+          center: uluru,
+          disableDefaultUI: true,
+        });
+
+        var m_earhart = new google.maps.Marker({
+        	position: {lat: 40.425820, lng: -86.924948},
+        	map: map
+        });
+
+        var m_tark = new google.maps.Marker({
+        	position: {lat: 40.430616, lng: -86.920707},
+        	map: map
+        });
+
+        var m_armstrong = new google.maps.Marker({
+        	position: {lat: 40.430981, lng: -86.914859},
+        	map: map
+        });
+
+        var m_memorial = new google.maps.Marker({
+        	position: {lat: 40.424990, lng: -86.914324},
+        	map: map
+        });
+
+        map.mapTypes.set('styled_map', styledMapType);
+        map.setMapTypeId('styled_map');
+      }
+    </script>
+	<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD08t5k4spnUy46bHoyxvmNTIcetBLQAdE&callback=initMap">
+  	</script>
+
+  	<!-- Socket stuff -->
 	<script src="/socket.io/socket.io.js"></script>
 	<script> 
 		var socket = io();
@@ -191,6 +270,7 @@
 				document.getElementById("usernameInput").value = "";
 				document.getElementById("passwordInput").value = "";
 				document.getElementsByClassName("loginResponse")[0].innerHTML = "";
+				document.getElementById("game_lobby_div").style.display = "none";
 				document.getElementById("lobby_div").style.display = "none";
 				document.getElementById("init_div").style.display = "block";
 				document.getElementById("signup_div").style.display = "none";
@@ -199,6 +279,8 @@
 		});
 		
 		/* ############ LOBBY STUFF ################# */
+
+		//for updating the games list
 		socket.on('getCreatedGamesResponse', function(data) {
 			var games = data.games;
 			for (var i = 0; i < games.length; i++)
@@ -215,21 +297,36 @@
 			}
 		});
 
+		//for updating the player list
+		socket.on('getPlayersInGameResponse', function(data) {
+			var players = data.players;
+			for (var i = 0;i < players.length; i++) {
+				//start game button 
+				//THIS NEEDS COOKIES ENABLED TO TOGGLE START GAME BUTTON
+
+				//player name
+				var pname = "pname " + i;
+				document.getElementById(pname).innerHTML = players[i].name;
+
+				//host or player
+				var pstatus = "status " + i;
+				document.getElementById(pstatus).innerHTML = players[i].hosting;
+
+				//update what player number
+				var pid = "Player " + i;
+				document.getElementById(pid).style.display = "block";
+			}
+		});
+
 		function joinGame(buttonId) {
 			var gameid = document.getElementById(buttonId).getAttribute("gameId");
 			socket.emit('joinGame', {gameId: gameid});
 		}
 		
 		socket.on('joinGameResponse', function(data) {
-			if (data.success = true) {
+			if (data.success == true) {
 				document.getElementById("game_lobby_div").style.display = "block";
-				var loop = setInterval(function() {
-					if (document.getElementById("game_lobby_div").style.display == "none") {
-						window.clearInterval(loop);
-					} else {
-						socket.emit('getPlayersInGame', {gameId: data.gameId});
-					}
-				}, 1000);
+				document.getElementById("lobby_div").style.display = "none";
 			} else {
 				console.log("Failed to join game");
 			}
@@ -241,9 +338,9 @@
 		}
 		
 		socket.on('createGameResponse', function(data) {
-			if (data.success = true) {
+			if (data.success == true) {
 				document.getElementById("lobby_div").style.display = "none";
-				document.getElementById("game_lobby_div").setAttribute("gameId", data.gameId);
+				//document.getElementById("game_lobby_div").setAttribute("gameId", data.gameId);
 				document.getElementById("game_lobby_div").style.display = "block";
 			} else {
 				document.getElementsByClassName("createGame")[0].innerHTML = data.state;
@@ -251,21 +348,39 @@
 			}
 		});
 
+		function startGame() {
+			socket.emit('startGame', {});
+		}
+		/*
+		socket.on('startGameResponse', function(data) {
+			if (data.success == true) {
+				document.getElementById("game_lobby_div").style.display = "none";
+				document.getElementById("ctx").style.display = "block";
+			} else {
+				console.log("Failed to start game");
+			}
+		});*/
 
 		//GAME STUFF
-		/*
+
 		var ctx = document.getElementById("ctx").
 		getContext("2d");
 		ctx.font = '30px Arial';
-		socket.on('newPosition', function(data){
+		socket.on('positionUpdate', function(data){
+			document.getElementById("game_lobby_div").style.display = "none";
+			document.getElementById("body").style.backgroundImage = "none";
+			document.getElementById("canvas").style.display = "block";
+			document.getElementById("map").style.display = "block";
+
 			//console.log("The new x position is " + data.x);
 			//console.log("\nThe new y position is " + data.y);
 			ctx.clearRect(0,0,500,500);
+			/*
 			for (var i = 0;i<data.length;i++) {
 				ctx.fillText(data[i].number,data[i].x,data[i].y);
-			}
-		})
-
+			}*/
+		});
+		/*
 		//when key is pressed send signal to server
 		document.onkeydown = function(event) {
 			if (event.keyCode === 68) { 
