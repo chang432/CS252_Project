@@ -707,7 +707,7 @@ io.on('connection', function(socket)
 	//on keypress
 	socket.on('keyPress', function(data) 
 	{
-		if (data.socketId == undefined || data.socketId != socket.id) { return; }
+		if (data.socketId == undefined || data.socketid != socket.id) { return; }
 		//console.log(player.name);
 		if (data.inputId === 'left') 
 		{
