@@ -252,8 +252,8 @@ function advancePositions(game)
 			if (actualVector[0] == 0 && actualVector[1] == 0) { actualVector = [0, 1]; }
 			if (actualVector[0] != 0 && actualVector[1] != 0) { actualVector = [actualVector[0] * Math.sqrt(2), actualVector[1] * Math.sqrt(2)]; }
 			
-			if (player.x + actualVector[0] < 100 && player.x + actualVector[0] > 0) { player.x = player.x + actualVector[0]; }
-			if (player.y + actualVector[1] < 100 && player.y + actualVector[1] > 0) { player.y = player.y + actualVector[1]; }
+			if (player.x + actualVector[0] < 1845 && player.x + actualVector[0] > 0) { player.x = player.x + (actualVector[0]*10); }
+			if (player.y + actualVector[1] < 945 && player.y + actualVector[1] > 0) { player.y = player.y + (actualVector[1]*10); }
 			
 			if (Math.abs(player.y) > 0 && Math.abs(player.x) > 0)
 			{
@@ -272,6 +272,7 @@ function advancePositions(game)
 		}
 	}
 	
+	/*
 	for (var i = bullets.length - 1; i > -1; i--)
 	{
 		var bullet = bullets[i];
@@ -314,7 +315,7 @@ function advancePositions(game)
 			enemy.rotation[1] = enemy.rotation[1] / mag;
 			enemy.rotationDegrees = Math.floor(Math.atan(enemy.rotation[1] / enemy.rotation[0]) * radianToDegrees + .01);
 		}
-	}
+	}*/
 }
 
 function fireBullet(player)
@@ -344,6 +345,8 @@ function getAllPositions(game)
 	
 	var returnTable = [];
 
+	//var players = [];
+	//returnTable[0] = players;
 	for (var i = 0; i < players.length; i++)
 	{
 		if (players[i].health > 0)
@@ -360,6 +363,7 @@ function getAllPositions(game)
 			});
 		}
 	}
+	/*
 	for (var i = 0; i < enemies.length; i++)
 	{
 		returnTable.push({
@@ -400,6 +404,7 @@ function getAllPositions(game)
 	}
 	returnTable.push({totalKills: game.enemyKills});
 	game.removeThings.splice(0, game.removeThings.length);
+	*/
 	return returnTable;
 }
 
@@ -684,14 +689,14 @@ io.on('connection', function(socket)
 		{
 			player.moveVector[1] = data.state;
 			if (data.state == true) { player.moveVector[0] = false; }
-		}
+		}/*
 		else if (data.inputId === 'space')
 		{
 			if (player.game != undefined && player.game.started == true)
 			{
 				fireBullet(player);
 			}
-		}
+		}*/
 	});
 });
 
@@ -721,7 +726,9 @@ setInterval(function()
 		var game = activeGames[i];
 		if (game.started == true)
 		{
+			
 			advancePositions(game);
+			/*
 			checkBulletEnemyCollisions(game);
 			checkEnemyPlayerCollisions(game);
 			
@@ -729,8 +736,10 @@ setInterval(function()
 			{
 				//createEnemy(game);
 			}
-			
+			*/
+			//console.log("boo");
 			var positions = getAllPositions(game);
+			
 			for (var a = 0; a < game.players.length; a++)
 			{
 				game.players[a].socket.emit('positionUpdate', {objectPositions: positions});

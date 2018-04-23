@@ -119,21 +119,21 @@
 		z-index: 2;
 		position: relative;
 	"> 
-		<canvas id="ctx" height="5000" width="5000" style="
+		<canvas id="ctx" height="945" width="1845" style="
 			border:1px solid #000000;
-			height: 100%;
-			width: 100%;
+			/*height: 100%;
+			width: 100%;*/
 		"></canvas>
 	</div>
 
 	<!-- Google maps stuff -->
 	<div id="map" style="
 		display: none;
-		height: 100%;
-		width: 100%;
+		height: 945px;
+		width: 1845px;
 		z-index: 1;
 		position: relative;
-		top: -100%;
+		top: -945px;
 	"></div>
     <script>
       function initMap() {
@@ -147,12 +147,6 @@
   			},{
   				featureType: "road",
     			elementType: "labels",
-    			stylers: [
-      				{ visibility: "off" }
-    			]
-  			},{
-  				featureType: 'water',
-  				elementType: "labels",
     			stylers: [
       				{ visibility: "off" }
     			]
@@ -362,9 +356,11 @@
 		});*/
 
 		//GAME STUFF
-
-		var ctx = document.getElementById("ctx").
-		getContext("2d");
+		var p1 = new Image();
+		p1.src = "images/Plane1.png";
+		//p1.style.width = "50%";
+		//p1.style.height = "auto";
+		var ctx = document.getElementById("ctx").getContext("2d");
 		ctx.font = '30px Arial';
 		socket.on('positionUpdate', function(data){
 			document.getElementById("game_lobby_div").style.display = "none";
@@ -374,7 +370,10 @@
 
 			//console.log("The new x position is " + data.x);
 			//console.log("\nThe new y position is " + data.y);
-			ctx.clearRect(0,0,500,500);
+			pos = data.objectPositions;
+			console.log("this: " + pos[0].name);
+			ctx.clearRect(0,0,1845,945);
+			ctx.drawImage(p1, 100, 100, 50, 50);
 			/*
 			for (var i = 0;i<data.length;i++) {
 				ctx.fillText(data[i].number,data[i].x,data[i].y);
