@@ -364,10 +364,20 @@
 		var b_switch = 0;
 		var b_offset;
 		var all_b = [];
-		for (var z=0;z<1000;z++) {
+		for (var z=0;z<5000;z++) {
 			var b = new Image();
 			b.src = "images/Bullet2.png";
 			all_b.push(b);
+		}
+
+		//Enemies
+		var e_switch = 0;
+		var e_offset;
+		var all_e = [];
+		for (var x=0;x<1000;x++) {
+			var e = new Image();
+			e.src = "images/Jet1.png";
+			all_e.push(e);
 		}
 
 		var ctx = document.getElementById("ctx").getContext("2d");
@@ -401,8 +411,21 @@
 				if (pos[i].className == "Bullet") {
 					ctx.save();
 					ctx.translate(pos[i].x, pos[i].y);
-					ctx.rotate(pos[i].rotation*Math.PI/180);
+					ctx.rotate((pos[i].rotation+90)*Math.PI/180);
 					ctx.drawImage(all_b[i-b_offset], -5, -5, 10, 10);
+					ctx.restore();
+				}
+
+				if (pos[i].className == "Enemy" && e_switch == 0) {
+					e_switch = 1;
+					e_offset = i;
+				}
+
+				if (pos[i].className == "Enemy") {
+					ctx.save();
+					ctx.translate(pos[i].x, pos[i].y);
+					ctx.rotate((pos[i].rotation)*Math.PI/180);
+					ctx.drawImage(all_e[i-e_offset], -25, -25, 50, 50);
 					ctx.restore();
 				}
 			}

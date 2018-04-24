@@ -40,20 +40,21 @@ var playerConstructor = {
 
 var enemyConstructor = {
 	id: "",
-	size: 4,
+	size: 50,
 	health: 50,
 	x: -1,
 	y: -1,
 	rotationX: 0,
 	rotationY: 0,
 	rotationDegrees: 0,
-	enemyType: "Normal"
+	enemyType: "Normal",
+	direction: "up"
 }
 
 var missileConstructor = {
 	id: "",
 	sentBy: undefined, ///so you can track kills
-	size: 1,
+	size: 10,
 	x: -1,
 	y: -1,
 	rotationX: 0,
@@ -295,25 +296,25 @@ function advancePositions(game)
 			game.removeThings.push(bullet.id);
 			bullets.splice(i, 1);
 		} else if (bullet.rotationDegrees == 0) {
-			bullet.y -= 12.5;	
+			bullet.y -= 20;	
 		} else if (bullet.rotationDegrees == 45) {
-			bullet.x += 12.5;
-			bullet.y -= 12.5;
+			bullet.x += 20;
+			bullet.y -= 20;
 		} else if (bullet.rotationDegrees == 90) {
-			bullet.x += 12.5;
+			bullet.x += 20;
 		} else if (bullet.rotationDegrees == 135) {
-			bullet.x += 12.5;
-			bullet.y += 12.5;
+			bullet.x += 20;
+			bullet.y += 20;
 		} else if (bullet.rotationDegrees == 180) {
-			bullet.y += 12.5;
+			bullet.y += 20;
 		} else if (bullet.rotationDegrees == 225) {
-			bullet.x -= 12.5;
-			bullet.y += 12.5;
+			bullet.x -= 20;
+			bullet.y += 20;
 		} else if (bullet.rotationDegrees == 270) {
-			bullet.x -= 12.5;
+			bullet.x -= 20;
 		} else if (bullet.rotationDegrees == 315) {
-			bullet.x -= 12.5;
-			bullet.y -= 12.5;
+			bullet.x -= 20;
+			bullet.y -= 20;
 		}
 
 		/*
@@ -335,6 +336,83 @@ function advancePositions(game)
 	for (var i = enemies.length - 1; i > -1; i--)
 	{
 		var enemy = enemies[i];
+
+		//random num from 1 to 3
+		var rand = Math.floor(Math.random() * 3 + 1);
+
+		if (enemy.x > 1845 || enemy.x < 0 || enemy.y > 945 || enemy.y < 0) {
+			game.removeThings.push(enemy.id);
+			game.enemies.splice(i, 1);
+		} else if (enemy.direction == "up") {
+			switch(rand) {
+				case 1:
+					enemy.rotationDegrees = 45;
+					enemy.x += 8;
+					enemy.y -= 8;
+					break;
+				case 2:
+					enemy.rotationDegrees = 0;
+					enemy.y -= 8;
+					break;
+				case 3:
+					enemy.rotationDegrees = 315;
+					enemy.x -= 8;
+					enemy.y -= 8;
+					break;
+			}
+		} else if (enemy.direction == "right") {
+			switch(rand) {
+				case 1:
+					enemy.rotationDegrees = 135;
+					enemy.x += 8;
+					enemy.y += 8;
+					break;
+				case 2:
+					enemy.rotationDegrees = 90;
+					enemy.x += 8;
+					break;
+				case 3:
+					enemy.rotationDegrees = 45;
+					enemy.x += 8;
+					enemy.y -= 8;
+					break;
+			}
+		} else if (enemy.direction == "down") {
+			switch(rand) {
+				case 1:
+					enemy.rotationDegrees = 225;
+					enemy.x -= 8;
+					enemy.y += 8;
+					break;
+				case 2:
+					enemy.rotationDegrees = 180;
+					enemy.y += 8;
+					break;
+				case 3:
+					enemy.rotationDegrees = 135;
+					enemy.x += 8;
+					enemy.y += 8;
+					break;
+			}
+		} else if (enemy.direction == "left") {
+			switch(rand) {
+				case 1:
+					enemy.rotationDegrees = 315;
+					enemy.x -= 8;
+					enemy.y -= 8;
+					break;
+				case 2:
+					enemy.rotationDegrees = 270;
+					enemy.x -= 8;
+					break;
+				case 3:
+					enemy.rotationDegrees = 225;
+					enemy.x -= 8;
+					enemy.y += 8;
+					break;
+			}
+		}
+		/*
 		if (enemy.x + enemy.rotationX < 150 && enemy.x + enemy.rotationX > 0) { enemy.x = enemy.x + enemy.rotationX; }
 		else //////destroy bullet, outside of bounds
 		{
@@ -356,6 +434,7 @@ function advancePositions(game)
 			enemy.rotationY = enemy.rotationY / mag;
 			enemy.rotationDegrees = Math.floor(Math.atan(enemy.rotationY / enemy.rotationX) * radianToDegree + .01);
 		}
+		*/
 	}
 }
 
@@ -526,7 +605,7 @@ function checkEnemyPlayerCollisions(game)
 				
 				game.removeThings.push(enemy.id);
 				game.enemies.splice(i, 1);
-				player.health = player.health - enemy.health;
+				player.health = player.health - 40;
 				if (player.health <= 0)
 				{
 					game.removeThings.push(player.id);
@@ -545,13 +624,17 @@ function createEnemy(game)
 	{
 		if (Math.random() < .5)///bottom x axis
 		{
-			enemy.x = Math.floor(Math.random() * 98) + 1;
-			enemy.y = 1;
+			enemy.x = Math.floor(Math.random() * 1840) + 5;
+			enemy.y = 945;
+			enemy.rotationDegrees = 0;
+			enemy.direction = "up";
 		}
 		else
 		{
-			enemy.x = Math.floor(Math.random() * 98) + 1;
-			enemy.y = 99;
+			enemy.x = Math.floor(Math.random() * 1840) + 5;
+			enemy.y = 1;
+			enemy.rotationDegrees = 180;
+			enemy.direction = "down";
 		}
 	}
 	else
@@ -559,18 +642,25 @@ function createEnemy(game)
 		if (Math.random() < .5)///bottom y axis
 		{
 			enemy.x = 1;
-			enemy.y = Math.floor(Math.random() * 98) + 1;
+			enemy.y = Math.floor(Math.random() * 940) + 5;
+			enemy.rotationDegrees = 90;
+			enemy.direction = "right";
 		}
 		else
 		{
-			enemy.x = 99;
-			enemy.y = Math.floor(Math.random() * 98) + 1;
+			enemy.x = 1845;
+			enemy.y = Math.floor(Math.random() * 940) + 5;
+			enemy.rotationDegrees = 270;
+			enemy.direction = "left";
 		}
 	}
+
+	/*
 	enemy.rotation = [50 - enemy.x, 50 - enemy.y];
 	var rotMag = Math.sqrt(Math.pow(enemy.rotation[0], 2) + Math.pow(enemy.rotation[1], 2));
 	enemy.rotation = [enemy.rotation[0] / rotMag, enemy.rotation[1] / rotMag];
 	enemy.rotationDegrees = Math.floor(Math.atan(enemy.rotation[1] / enemy.rotation[0]) * radianToDegree + .1);
+	*/
 	game.enemies.push(enemy);
 }
 
@@ -834,10 +924,10 @@ setInterval(function()
 		if (game.started == true)
 		{
 			advancePositions(game);
-			//checkBulletEnemyCollisions(game);
-			//checkEnemyPlayerCollisions(game);
+			checkBulletEnemyCollisions(game);
+			checkEnemyPlayerCollisions(game);
 			
-			if (game.enemies.length < Math.floor(game.players.length * 1.5) + 1)
+			if (game.enemies.length < Math.floor(game.players.length * 4) + 1)
 			{
 				createEnemy(game);
 			}
