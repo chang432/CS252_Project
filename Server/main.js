@@ -261,21 +261,32 @@ function advancePositions(game)
 			
 			if (player.x + actualVector[0] + player.size < 1845 && player.x + actualVector[0] > 0) { player.x = player.x + actualVector[0]; }
 			if (player.y + actualVector[1] + player.size < 945 && player.y + actualVector[1] > 0) { player.y = player.y + actualVector[1]; }
-			
+			/*
 			if (Math.abs(player.y) > 0 && Math.abs(player.x) > 0)
 			{
 				player.rotationDegrees = Math.floor(Math.atan(player.y / player.x) * radianToDegree + .01);
-			}
-			else if (player.y == 0)
-			{
-				if (player.x > 0) { player.rotationDegrees = 0; }
-				else { player.rotationDegrees = 180; }
-			}
-			else if (player.x == 0)
-			{
-				if (player.y > 0) { player.rotationDegrees = 90; }
-				else { player.rotationDegrees = 270; }
-			}
+			}*/
+			/*if (actualVector[0] == 0 && actualVector[1] == 0) {
+				player.rotationDegrees = 270;
+			}*/
+			if (player.up == false && player.down == false && player.left == false && player.right == true) {
+				player.rotationDegrees = 90;
+			} else if (player.up == false && player.down == false && player.left == true && player.right == false) {
+				player.rotationDegrees = 270;
+			} else if (player.up == true && player.down == false && player.left == false && player.right == false) {
+				player.rotationDegrees = 0;
+			} else if (player.up == false && player.down == true && player.left == false && player.right == false) {
+				player.rotationDegrees = 180;
+			} else if (player.up == true && player.down == false && player.left == false && player.right == true) {
+				player.rotationDegrees = 45;
+			} else if (player.up == false && player.down == true && player.left == false && player.right == true) {
+				player.rotationDegrees = 135;
+			} else if (player.up == false && player.down == true && player.left == true && player.right == false) {
+				player.rotationDegrees = 225;
+			} else if (player.up == true && player.down == false && player.left == true && player.right == false) {
+				player.rotationDegrees = 315;
+			} 
+			
 		}
 	}
 	
