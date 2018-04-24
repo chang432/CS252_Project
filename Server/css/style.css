@@ -80,7 +80,7 @@ input[type=text], input[type=password] {
 
 .serverPickText {
 	position: absolute;
-	top: 26%;
+	top: 20%;
 	left: 40%;
 	width: 20%;
 }
