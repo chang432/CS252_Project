@@ -182,7 +182,7 @@
 	<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD08t5k4spnUy46bHoyxvmNTIcetBLQAdE&callback=initMap">
   	</script>
 
-  	<img id="p0" src="images/Plane1.png" height="50" width="50" style="display: none;">
+  	<img id="sdd" src="images/Bullet2.png" height="50" width="50" style="display: none;">
 
   	<!-- Socket stuff -->
 	<script src="/socket.io/socket.io.js"></script>
@@ -347,6 +347,8 @@
 		});*/
 		
 		//GAME STUFF
+
+		//Players
 		var p0 = new Image();
 		p0.src = "images/Plane1.png";
 
@@ -358,8 +360,16 @@
 		all_p.push(p0);
 		all_p.push(p1);
 
-		//p1.style.width = "50%";
-		//p1.style.height = "auto";
+		//Bullets
+		var b_switch = 0;
+		var b_offset;
+		var all_b = [];
+		for (var z=0;z<1000;z++) {
+			var b = new Image();
+			b.src = "images/Bullet2.png";
+			all_b.push(b);
+		}
+
 		var ctx = document.getElementById("ctx").getContext("2d");
 		ctx.font = '30px Arial';
 		socket.on('positionUpdate', function(data){
@@ -382,6 +392,19 @@
 					ctx.drawImage(all_p[i], -25, -25, 50, 50);
 					ctx.restore();
 				} 
+
+				if (pos[i].className == "Bullet" && b_switch == 0) {
+					b_switch = 1;
+					b_offset = i;
+				}
+
+				if (pos[i].className == "Bullet") {
+					ctx.save();
+					ctx.translate(pos[i].x, pos[i].y);
+					ctx.rotate(pos[i].rotation*Math.PI/180);
+					ctx.drawImage(all_b[i-b_offset], -5, -5, 10, 10);
+					ctx.restore();
+				}
 			}
 			/*
 			for (var i = 0;i<data.length;i++) {
@@ -403,6 +426,9 @@
 			} else if (event.keyCode === 87) {
 				//w
 				socket.emit('keyPress', {inputId:'up',state:true,socketid: socket_id});
+			} else if (event.keyCode === 13) {
+				//enter
+				socket.emit('keyPress', {inputId:'fire',state:true,socketid: socket_id});
 			}
 		}
 		//when key is released send signal to server
@@ -419,6 +445,9 @@
 			} else if (event.keyCode === 87) {
 				//w
 				socket.emit('keyPress', {inputId:'up',state:false,socketid: socket_id});
+			} else if (event.keyCode === 13) {
+				//enter
+				socket.emit('keyPress', {inputId:'fire',state:false,socketid: socket_id});
 			}
 		}
 	</script>

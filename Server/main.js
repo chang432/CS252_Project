@@ -266,9 +266,6 @@ function advancePositions(game)
 			{
 				player.rotationDegrees = Math.floor(Math.atan(player.y / player.x) * radianToDegree + .01);
 			}*/
-			/*if (actualVector[0] == 0 && actualVector[1] == 0) {
-				player.rotationDegrees = 270;
-			}*/
 			if (player.up == false && player.down == false && player.left == false && player.right == true) {
 				player.rotationDegrees = 90;
 			} else if (player.up == false && player.down == false && player.left == true && player.right == false) {
@@ -293,6 +290,33 @@ function advancePositions(game)
 	for (var i = bullets.length - 1; i > -1; i--)
 	{
 		var bullet = bullets[i];
+
+		if (bullet.x > 1845 || bullet.x < 0 || bullet.y > 945 || bullet.y < 0) {
+			game.removeThings.push(bullet.id);
+			bullets.splice(i, 1);
+		} else if (bullet.rotationDegrees == 0) {
+			bullet.y -= 12.5;	
+		} else if (bullet.rotationDegrees == 45) {
+			bullet.x += 12.5;
+			bullet.y -= 12.5;
+		} else if (bullet.rotationDegrees == 90) {
+			bullet.x += 12.5;
+		} else if (bullet.rotationDegrees == 135) {
+			bullet.x += 12.5;
+			bullet.y += 12.5;
+		} else if (bullet.rotationDegrees == 180) {
+			bullet.y += 12.5;
+		} else if (bullet.rotationDegrees == 225) {
+			bullet.x -= 12.5;
+			bullet.y += 12.5;
+		} else if (bullet.rotationDegrees == 270) {
+			bullet.x -= 12.5;
+		} else if (bullet.rotationDegrees == 315) {
+			bullet.x -= 12.5;
+			bullet.y -= 12.5;
+		}
+
+		/*
 		if (bullet.x + bullet.rotationX < 150 && bullet.x + bullet.rotationX > 0) { bullet.x = bullet.x + bullet.rotationX; }
 		else //////destroy bullet, outside of bounds
 		{
@@ -305,7 +329,7 @@ function advancePositions(game)
 		{
 			game.removeThings.push(bullet.id);
 			bullets.splice(i, 1);
-		}
+		}*/
 	}
 	
 	for (var i = enemies.length - 1; i > -1; i--)
@@ -344,10 +368,43 @@ function fireBullet(player)
 	var newBullet = Object.create(missileConstructor);
 	newBullet.id = generateId(6);
 	newBullet.sentBy = player;
-	newBullet.x = player.x + ((player.size * player.rotationX) / 2);
-	newBullet.y = player.y + ((player.size * player.rotationY) / 2);
-	newBullet.rotation = [player.rotationX * 2, player.rotationY * 2];
-	newBullet.rotationDegrees = player.rotationDegrees;
+	//newBullet.x = player.x + ((player.size * player.rotationX) / 2);
+	//newBullet.y = player.y + ((player.size * player.rotationY) / 2);
+	//newBullet.rotation = [player.rotationX * 2, player.rotationY * 2];
+	//newBullet.rotationDegrees = player.rotationDegrees;
+	if (player.rotationDegrees == 0) {
+		newBullet.x = player.x;
+		newBullet.y = player.y - 30;
+		newBullet.rotationDegrees = 0;
+	} else if (player.rotationDegrees == 45) {
+		newBullet.x = player.x + 30;
+		newBullet.y = player.y - 30;
+		newBullet.rotationDegrees = 45;
+	} else if (player.rotationDegrees == 90) {
+		newBullet.x = player.x + 30;
+		newBullet.y = player.y;
+		newBullet.rotationDegrees = 90;
+	} else if (player.rotationDegrees == 135) {
+		newBullet.x = player.x + 30;
+		newBullet.y = player.y + 30;
+		newBullet.rotationDegrees = 135;
+	} else if (player.rotationDegrees == 180) {
+		newBullet.x = player.x;
+		newBullet.y = player.y + 30;
+		newBullet.rotationDegrees = 180;
+	} else if (player.rotationDegrees == 225) {
+		newBullet.x = player.x - 30;
+		newBullet.y = player.y + 30;
+		newBullet.rotationDegrees = 225;
+	} else if (player.rotationDegrees == 270) {
+		newBullet.x = player.x - 30;
+		newBullet.y = player.y;
+		newBullet.rotationDegrees = 270;
+	} else if (player.rotationDegrees == 315) {
+		newBullet.x = player.x - 30;
+		newBullet.y = player.y - 30;
+		newBullet.rotationDegrees = 315;
+	}
 
 	bullets.push(newBullet);
 }
@@ -742,6 +799,11 @@ io.on('connection', function(socket)
 			plr.down = data.state;	
 			if (data.state == true) { plr.up = false; }
 		}
+		else if (data.inputId === 'fire')
+		{
+			//plr.down = data.state;	
+			if (data.state == true) { fireBullet(player);console.log("pew pew") }
+		}
 	});
 });
 
@@ -772,8 +834,8 @@ setInterval(function()
 		if (game.started == true)
 		{
 			advancePositions(game);
-			checkBulletEnemyCollisions(game);
-			checkEnemyPlayerCollisions(game);
+			//checkBulletEnemyCollisions(game);
+			//checkEnemyPlayerCollisions(game);
 			
 			if (game.enemies.length < Math.floor(game.players.length * 1.5) + 1)
 			{
