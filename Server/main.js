@@ -252,16 +252,16 @@ function advancePositions(game)
 			var player = players[i];
 			var actualVector = [0, 0];
 			
-			if (player.up == true) { actualVector[1] = -1; }
-			else if (player.down == true) { actualVector[1] = 1; }
-			if (player.left == true) { actualVector[0] = -1; }
-			else if (player.right == true) { actualVector[0] = 1; }
+			if (player.up == true) { actualVector[1] = -10; }
+			else if (player.down == true) { actualVector[1] = 10; }
+			if (player.left == true) { actualVector[0] = -10; }
+			else if (player.right == true) { actualVector[0] = 10; }
 			
 			if (actualVector[0] == 0 && actualVector[1] == 0) { actualVector = [0, -1]; }
 			if (actualVector[0] != 0 && actualVector[1] != 0) { actualVector = [actualVector[0] * Math.sqrt(2), actualVector[1] * Math.sqrt(2)]; }
 			
-			if (player.x + actualVector[0] + player.size < 150 && player.x + actualVector[0] > 0) { player.x = player.x + actualVector[0]; }
-			if (player.y + actualVector[1] + player.size < 100 && player.y + actualVector[1] > 0) { player.y = player.y + actualVector[1]; }
+			if (player.x + actualVector[0] + player.size < 1845 && player.x + actualVector[0] > 0) { player.x = player.x + actualVector[0]; }
+			if (player.y + actualVector[1] + player.size < 945 && player.y + actualVector[1] > 0) { player.y = player.y + actualVector[1]; }
 			
 			if (Math.abs(player.y) > 0 && Math.abs(player.x) > 0)
 			{
@@ -761,7 +761,7 @@ setInterval(function()
 		var game = activeGames[i];
 		if (game.started == true)
 		{
-			/*
+			
 			advancePositions(game);
 			checkBulletEnemyCollisions(game);
 			checkEnemyPlayerCollisions(game);
@@ -770,7 +770,7 @@ setInterval(function()
 			{
 				//createEnemy(game);
 			}
-			*/
+
 			var positions = getAllPositions(game);
 			for (var a = 0; a < game.players.length; a++)
 			{
