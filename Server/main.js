@@ -12,8 +12,7 @@ var allPlayers = []; /////[Player, Socket];
 
 var radianToDegree = 180 / 3.141592;
 
-var playerConstructor = function() {
-	var self = {
+var playerConstructor = {
 	name: "Guest",
 	id: "",
 	socketId: -1,
@@ -33,66 +32,11 @@ var playerConstructor = function() {
 	rotationX: 0,
 	rotationY: 0,
 	rotationDegrees: 0,
-<<<<<<< HEAD
-	moveVector: [false, false, false, false], ///up, down, left, right
-	pRight:false,
-	pLeft:false,
-	pUp:false,
-	pDown:false,
-	}
 
-	self.updatePosition = function() {
-		if (self.health > 0)
-		{
-			//if (self.health < 100) { players[i].health = players[i].health + .05; }
-			//var player = players[i];
-			var actualVector = [0, 0];
-			
-			if (self.moveVector[0] == true) { actualVector[1] = 10; }
-			else if (self.moveVector[1] == true) { actualVector[1] = -10; }
-			if (self.moveVector[2] == true) { actualVector[0] = -10; }
-			else if (self.moveVector[3] == true) { actualVector[0] = 10; }
-			
-			//if (actualVector[0] == 0 && actualVector[1] == 0) { actualVector = [0, 1]; }
-			//if (actualVector[0] != 0 && actualVector[1] != 0) { actualVector = [actualVector[0] * Math.sqrt(2), actualVector[1] * Math.sqrt(2)]; }
-			
-			//if hits left border
-			if (self.x + actualVector[0] < 0 && actualVector[0] == 10) { self.x = self.x + actualVector[0]; }
-
-			//if hits right border
-			if (self.x + actualVector[0] > 1845 && actualVector[0] == -10) { self.x = self.x + actualVector[0]; }
-
-			//if hits top border
-			if (self.y + actualVector[1] < 0 && actualVector[1] == -10) { self.y = self.y - actualVector[1]; }
-
-			//if hits bottom border
-			if (self.y + actualVector[1] > 945 && actualVector[1] == 10) { self.y = self.y - actualVector[1]; }
-
-			if (self.x + actualVector[0] < 1845 && self.x + actualVector[0] > 0) { self.x = self.x + actualVector[0]; }
-			if (self.y - actualVector[1] < 945 && self.y - actualVector[1] > 0) { self.y = self.y - actualVector[1]; }
-			/*
-			if (Math.abs(self.y) > 0 && Math.abs(self.x) > 0)
-			{
-				player.rotationDegrees = Math.floor(Math.atan(player.y / player.x) * radianToDegree + .01);
-			}
-			else if (player.y == 0)
-			{
-				if (player.x > 0) { player.rotationDegrees = 0; }
-				else { player.rotationDegrees = 180; }
-			}
-			else if (player.x == 0)
-			{
-				if (player.y > 0) { player.rotationDegrees = 90; }
-				else { player.rotationDegrees = 270; }
-			}*/
-		}
-	}
-=======
 	up: false,
 	down: false,
 	left: false,
 	right: false
->>>>>>> a93b0aa8c7152ef58e7300722d6842ad0db336fa
 }
 
 var enemyConstructor = {
@@ -302,11 +246,6 @@ function advancePositions(game)
 
 	for (var i = 0; i < players.length; i++)
 	{
-<<<<<<< HEAD
-		players[i].updatePosition;
-		/*
-=======
->>>>>>> a93b0aa8c7152ef58e7300722d6842ad0db336fa
 		if (players[i].health > 0)
 		{
 			if (players[i].health < 100 && players[i].health > 0) { players[i].health = players[i].health + .05; }
@@ -339,7 +278,6 @@ function advancePositions(game)
 				else { player.rotationDegrees = 270; }
 			}
 		}
-		*/
 	}
 	
 	for (var i = bullets.length - 1; i > -1; i--)
@@ -596,7 +534,6 @@ io.on('connection', function(socket)
 	socket.emit('socketId', {socketId: socket.id});
 	
 	var player = Object.create(playerConstructor);
-	//var player = playerConstructor();
 	player.id = generateId(8);
 	player.socket = socket;
 	allPlayers[socket.id] = [player, socket];
@@ -768,32 +705,6 @@ io.on('connection', function(socket)
 	
 	socket.on('keyPress', function(data)
 	{
-<<<<<<< HEAD
-		console.log(data.socketid);
-		console.log(socket.id);
-		if (data.socketid == undefined || data.socketid != socket.id) { return; }
-		if (data.inputId === 'left') 
-		{
-			player.moveVector[2] = data.state;
-			if (data.state == true) { player.pLeft=data.state /*player.moveVector[3] = false;*/ }
-		} 
-		else if (data.inputId === 'right') 
-		{
-			player.moveVector[3] = data.state;
-			if (data.state == true) { player.pRight=data.state /*player.moveVector[2] = false;*/ }
-		} 
-		else if (data.inputId === 'up') 
-		{
-			player.moveVector[0] = data.state;
-			if (data.state == true) { player.pUp=data.state /*player.moveVector[1] = false;*/ }
-		} 
-		else if (data.inputId === 'down') 
-		{
-			player.moveVector[1] = data.state;
-			if (data.state == true) { player.pDown=data.state /*player.moveVector[0] = false;*/ }
-		}/*
-		else if (data.inputId === 'space')
-=======
 		if (data.socketid == undefined || data.socketid != socket.id) { console.log(data.socketId); return; }
 		var plr = undefined;
 		for (var i in allPlayers)
@@ -817,7 +728,6 @@ io.on('connection', function(socket)
 			if (data.state == true) { plr.down = false; }
 		}
 		else if (data.inputId === 'down')
->>>>>>> a93b0aa8c7152ef58e7300722d6842ad0db336fa
 		{
 			plr.down = data.state;	
 			if (data.state == true) { plr.up = false; }
@@ -851,15 +761,16 @@ setInterval(function()
 		var game = activeGames[i];
 		if (game.started == true)
 		{
+			/*
 			advancePositions(game);
 			checkBulletEnemyCollisions(game);
 			checkEnemyPlayerCollisions(game);
 			
 			if (game.enemies.length < Math.floor(game.players.length * 1.5) + 1)
 			{
-				createEnemy(game);
+				//createEnemy(game);
 			}
-			
+			*/
 			var positions = getAllPositions(game);
 			for (var a = 0; a < game.players.length; a++)
 			{
@@ -868,3 +779,4 @@ setInterval(function()
 		}	
 	}
 }, 50);
+
