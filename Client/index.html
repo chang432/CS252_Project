@@ -182,8 +182,6 @@
 	<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD08t5k4spnUy46bHoyxvmNTIcetBLQAdE&callback=initMap">
   	</script>
 
-  	<img id="sdd" src="images/Bullet2.png" height="50" width="50" style="display: none;">
-
   	<!-- Socket stuff -->
 	<script src="/socket.io/socket.io.js"></script>
 	<script> 
@@ -355,10 +353,18 @@
 		var p1 = new Image();
 		p1.src = "images/Plane2.png";
 
+		var p2 = new Image();
+		p2.src = "images/Plane3.png";
+
+		var p3 = new Image();
+		p3.src = "images/Plane1.png";
+
 		var all_p = [];
 		//all_p.push(document.getElementById("p0"));
 		all_p.push(p0);
 		all_p.push(p1);
+		all_p.push(p2);
+		all_p.push(p3);
 
 		//Bullets
 		var b_switch = 0;
@@ -395,7 +401,7 @@
 			//ctx.drawImage(p0, 100, 100, 50, 50);
 			for (var i=0;i<pos.length;i++) {
 				if (pos[i].className == "Player") {
-					//console.log("Player: " + i);
+					console.log("Player: " + i);
 					ctx.save();
 					ctx.translate(pos[i].x, pos[i].y);
 					ctx.rotate(pos[i].rotation*Math.PI/180);

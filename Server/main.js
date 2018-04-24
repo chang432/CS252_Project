@@ -231,8 +231,8 @@ function startGame(game)
 	for (var i = 0; i < players.length; i++)
 	{
 		players[i].health = 100;
-		players[i].x = Math.floor(Math.random() * 90) + 5;
-		players[i].y = Math.floor(Math.random() * 90) + 5;
+		players[i].x = Math.floor(Math.random() * 200) + 100;
+		players[i].y = Math.floor(Math.random() * 200) + 100;
 	}
 
 	game.started = true;
@@ -746,6 +746,7 @@ io.on('connection', function(socket)
 		if (data.username.length > 25) { socket.emit('signupResponse', {success: false, state: "The username you entered is too long."}); return; }
 		if (data.password.length > 50) { socket.emit('signupResponse', {success: false, state: "The password you entered is too long."}); return; }
 		////////do stuff with the database/////////
+		/*
 		var usernameExists = false;
 		Object.keys(allPlayers).forEach(function(key)
 		{
@@ -759,7 +760,7 @@ io.on('connection', function(socket)
 			}
 		});
 		if (usernameExists == true) { return; }
-		player.name = data.username;
+		player.name = data.username;*/
 		socket.emit('signupResponse', {success: true, state: "Success"});
 	});
 
@@ -862,7 +863,7 @@ io.on('connection', function(socket)
 	
 	socket.on('keyPress', function(data)
 	{
-		if (data.socketid == undefined || data.socketid != socket.id) { console.log(data.socketId); return; }
+		if (data.socketid == undefined || data.socketid != socket.id) { return; }
 		var plr = undefined;
 		for (var i in allPlayers)
 		{
