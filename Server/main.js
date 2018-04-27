@@ -893,7 +893,7 @@ io.on('connection', function(socket)
 		else if (data.inputId === 'fire')
 		{
 			//plr.down = data.state;	
-			if (data.state == true) { fireBullet(player);console.log("pew pew") }
+			if (data.state == true) { fireBullet(player); }
 		}
 	});
 });
@@ -916,7 +916,8 @@ setInterval(function()
 		}	
 	}
 }, 2000);
-
+var count = 0;
+var level = 0;
 setInterval(function()
 {
 	for (var i in activeGames)
@@ -924,11 +925,17 @@ setInterval(function()
 		var game = activeGames[i];
 		if (game.started == true)
 		{
+			if (count % 300 == 0) {
+				console.log("level: " + (count/300));
+				level = (count/1000) + 1;
+			}
+			count++;
+
 			advancePositions(game);
 			checkBulletEnemyCollisions(game);
 			checkEnemyPlayerCollisions(game);
 			
-			if (game.enemies.length < Math.floor(game.players.length * 4) + 1)
+			if (game.enemies.length < Math.floor(game.players.length * 6 * level) + 1)
 			{
 				createEnemy(game);
 			}
